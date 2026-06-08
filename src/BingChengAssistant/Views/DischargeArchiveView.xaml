@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:BingChengAssistant.ViewModels"
         Title="出院归档"
-        Width="820" Height="680"
+        Width="900" Height="700"
         WindowStartupLocation="CenterOwner"
         Style="{StaticResource BaseWindow}">
 
@@ -14,81 +14,195 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="68"/>
         </Grid.RowDefinitions>
 
+        <!-- 标题栏 -->
         <Border Grid.Row="0" Style="{StaticResource HeaderPanel}">
-            <TextBlock Text="🏠 出院归档" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+            <TextBlock Text="出院归档" Foreground="White" FontSize="15" FontWeight="Bold"
+                       VerticalAlignment="Center"/>
         </Border>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
+        <!-- 患者信息横条（蓝色背景） -->
+        <Border Grid.Row="1" Background="#1677FF" Padding="20,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,24,0">
+                    <TextBlock Text="患者姓名" FontSize="10" Foreground="#A8D4FF"/>
+                    <TextBlock Text="{Binding Admission.Patient.Name, FallbackValue='—'}"
+                               FontSize="14" FontWeight="Bold" Foreground="White"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="0,0,24,0">
+                    <TextBlock Text="性别/年龄" FontSize="10" Foreground="#A8D4FF"/>
+                    <TextBlock FontSize="13" Foreground="White">
+                        <Run Text="{Binding Admission.Patient.Gender, FallbackValue=''}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Admission.Patient.Age, FallbackValue='', StringFormat='{}{0}岁'}"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Margin="0,0,24,0">
+                    <TextBlock Text="入院日期" FontSize="10" Foreground="#A8D4FF"/>
+                    <TextBlock Text="{Binding Admission.AdmissionDate, FallbackValue='', StringFormat='{}{0:yyyy-MM-dd}'}"
+                               FontSize="13" Foreground="White"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Margin="0,0,24,0">
+                    <TextBlock Text="出院日期" FontSize="10" Foreground="#A8D4FF"/>
+                    <TextBlock Text="{Binding DischargeDate, StringFormat='{}{0:yyyy-MM-dd}'}"
+                               FontSize="13" Foreground="White"/>
+                </StackPanel>
+                <StackPanel Grid.Column="4" Margin="0,0,24,0">
+                    <TextBlock Text="住院天数" FontSize="10" Foreground="#A8D4FF"/>
+                    <TextBlock FontSize="13" Foreground="White">
+                        <Run Text="—"/>
+                        <Run Text=" 天"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="5">
+                    <TextBlock Text="主要诊断" FontSize="10" Foreground="#A8D4FF"/>
+                    <TextBlock Text="{Binding Admission.MainDiagnosis, FallbackValue='—'}"
+                               FontSize="13" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 主体两列 -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="280"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- 左列 -->
-                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                <!-- 左列：出院信息表单 -->
+                <StackPanel Grid.Column="0" Margin="0,0,12,0">
                     <Border Style="{StaticResource Card}" Margin="0,0,0,12">
                         <StackPanel>
                             <TextBlock Text="出院信息" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="出院日期" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                            <DatePicker SelectedDate="{Binding DischargeDate}" Margin="0,0,0,10"
-                                        FontFamily="{StaticResource DefaultFont}" BorderBrush="{StaticResource BorderBrush}"/>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="出院日期" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <DatePicker SelectedDate="{Binding DischargeDate}"
+                                                FontFamily="{StaticResource DefaultFont}"
+                                                BorderBrush="{StaticResource BorderBrush}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                    <TextBlock Text="转归" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                              ItemsSource="{Binding OutcomeOptions}"
+                                              SelectedItem="{Binding DischargeOutcome}"/>
+                                </StackPanel>
+                            </Grid>
+
                             <TextBlock Text="出院诊断 *" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                            <TextBox Style="{StaticResource InputBox}" Text="{Binding DischargeDiagnosis}" Margin="0,0,0,10"/>
-                            <TextBlock Text="转归" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                            <ComboBox Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding OutcomeOptions}"
-                                      SelectedItem="{Binding DischargeOutcome}" Margin="0,0,0,10"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding DischargeDiagnosis}"
+                                     Margin="0,0,0,10"/>
+
                             <TextBlock Text="出院医嘱" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                             <TextBox Style="{StaticResource InputBox}" Text="{Binding DischargeOrders}"
-                                     Height="80" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+                                     Height="72" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+
                             <TextBlock Text="康复建议" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                             <TextBox Style="{StaticResource InputBox}" Text="{Binding RehabAdvice}"
                                      Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+
                             <TextBlock Text="随访建议" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                            <TextBox Style="{StaticResource InputBox}" Text="{Binding FollowUpAdvice}" Margin="0,0,0,10"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding FollowUpAdvice}"
+                                     Margin="0,0,0,10"/>
+
+                            <TextBlock Text="运动处方" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding ExercisePrescription}"
+                                     Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+
+                            <TextBlock Text="科研备注" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding ResearchNote}"
+                                     Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <!-- 右列 -->
-                <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                <!-- 右列：归档清单与Word归档 -->
+                <StackPanel Grid.Column="1">
+                    <!-- 归档清单 -->
                     <Border Style="{StaticResource Card}" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="运动处方建议" Style="{StaticResource SectionTitle}"/>
-                            <TextBox Style="{StaticResource InputBox}" Text="{Binding ExercisePrescription}"
-                                     Height="80" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+                            <TextBlock Text="归档清单" Style="{StaticResource SectionTitle}"/>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Border Width="18" Height="18" CornerRadius="9" Background="{StaticResource SuccessBrush}"
+                                            Margin="0,0,8,0">
+                                        <TextBlock Text="V" Foreground="White" FontSize="10" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="标记患者状态为已归档" FontSize="12"
+                                               Foreground="{StaticResource TextDarkBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Border Width="18" Height="18" CornerRadius="9" Background="{StaticResource SuccessBrush}"
+                                            Margin="0,0,8,0">
+                                        <TextBlock Text="V" Foreground="White" FontSize="10" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="生成出院归档Word文档" FontSize="12"
+                                               Foreground="{StaticResource TextDarkBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="18" Height="18" CornerRadius="9" Background="{StaticResource SuccessBrush}"
+                                            Margin="0,0,8,0">
+                                        <TextBlock Text="V" Foreground="White" FontSize="10" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="更新科研索引Excel" FontSize="12"
+                                               Foreground="{StaticResource TextDarkBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Border Style="{StaticResource Card}">
+
+                    <!-- Word归档路径 -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="科研备注" Style="{StaticResource SectionTitle}"/>
-                            <TextBox Style="{StaticResource InputBox}" Text="{Binding ResearchNote}"
-                                     Height="120" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
-                            <Separator Style="{StaticResource Divider}"/>
-                            <TextBlock Text="归档后将：" FontWeight="Bold" FontSize="12" Margin="0,6,0,6"/>
-                            <TextBlock FontSize="12" Foreground="{StaticResource TextGrayBrush}" TextWrapping="Wrap">
-                                ✅ 标记患者状态为"已归档"&#x0a;✅ 生成出院归档 Word 文档&#x0a;✅ 更新科研索引 Excel
-                            </TextBlock>
+                            <TextBlock Text="Word归档路径" Style="{StaticResource SectionTitle}"/>
+                            <Border Background="#F8FAFC" CornerRadius="4" Padding="8,6"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,0,10">
+                                <TextBlock FontSize="11" Foreground="{StaticResource TextGrayBrush}" TextWrapping="Wrap">
+                                    <Run Text="doctors/[医生目录]/exports/"/>
+                                    <Run Text="{Binding Admission.Patient.Name, FallbackValue='患者姓名'}"/>
+                                    <Run Text="-出院归档.docx"/>
+                                </TextBlock>
+                            </Border>
                         </StackPanel>
                     </Border>
 
                     <!-- 错误信息 -->
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
-                               FontSize="12" Margin="0,8,0,0"
+                               FontSize="12" Margin="0,0,0,8"
                                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
 
         <!-- 底部按钮 -->
-        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="20,10">
+        <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="20,12">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="取消" Style="{StaticResource SecondaryButton}" Width="80" Margin="0,0,10,0" IsCancel="True"/>
-                <Button Content="生成Word并归档" Style="{StaticResource PrimaryButton}" Width="140"
+                <Button Content="取消" Style="{StaticResource SecondaryButton}"
+                        Width="80" Margin="0,0,12,0" IsCancel="True"/>
+                <Button Content="生成Word并归档" Style="{StaticResource PrimaryButton}"
+                        Height="44" Padding="24,0" FontSize="14"
                         Command="{Binding ArchiveCommand}" Click="ArchiveButton_Click"/>
             </StackPanel>
         </Border>

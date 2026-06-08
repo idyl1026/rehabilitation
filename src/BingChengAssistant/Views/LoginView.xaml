@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:BingChengAssistant.ViewModels"
         Title="病程助手 v1.2 — 医生登录"
-        Width="420" Height="500"
+        Width="860" Height="580"
+        MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
         Style="{StaticResource BaseWindow}">
 
     <Window.DataContext>
@@ -13,50 +14,144 @@
     </Window.DataContext>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- 标题栏 -->
-        <Border Grid.Row="0" Style="{StaticResource HeaderPanel}">
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="🏥 病程助手 v1.2" Foreground="White" FontSize="18" FontWeight="Bold"/>
-                <TextBlock Text="内网单机版 · 病程辅助写作系统" Foreground="#A8C4E0" FontSize="11"/>
+        <!-- 左侧深蓝渐变背景 -->
+        <Border Grid.Column="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#1B3A6B" Offset="0"/>
+                    <GradientStop Color="#0D2147" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel VerticalAlignment="Center" Margin="40,0">
+                <TextBlock Text="病程助手 v1.2" Foreground="White" FontSize="28" FontWeight="Bold"
+                           FontFamily="{StaticResource DefaultFont}" Margin="0,0,0,8"/>
+                <TextBlock Text="内网单机版病程辅助写作系统" Foreground="#A8C4E0" FontSize="14"
+                           FontFamily="{StaticResource DefaultFont}" Margin="0,0,0,36"/>
+
+                <!-- 功能亮点列表 -->
+                <Border Background="#1F4A80" CornerRadius="6" Padding="16,12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,0,4"
+                                   FontFamily="{StaticResource DefaultFont}">
+                            <Run Text="[医] "/>
+                            <Run Text="医生工作区"/>
+                        </TextBlock>
+                        <TextBlock Text="内网专用，适用于低配内网电脑，最多支持7名医生" Foreground="#A8C4E0"
+                                   FontSize="12" FontFamily="{StaticResource DefaultFont}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#1F4A80" CornerRadius="6" Padding="16,12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,0,4"
+                                   FontFamily="{StaticResource DefaultFont}">
+                            <Run Text="[病] "/>
+                            <Run Text="病程与康复评估"/>
+                        </TextBlock>
+                        <TextBlock Text="快速调用模板，评估结果导入病程，一键复制" Foreground="#A8C4E0"
+                                   FontSize="12" FontFamily="{StaticResource DefaultFont}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#1F4A80" CornerRadius="6" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Foreground="White" FontSize="13" FontWeight="Bold" Margin="0,0,0,4"
+                                   FontFamily="{StaticResource DefaultFont}">
+                            <Run Text="[档] "/>
+                            <Run Text="Word档案与科研索引"/>
+                        </TextBlock>
+                        <TextBlock Text="出院自动生成Word，更新科研索引Excel" Foreground="#A8C4E0"
+                                   FontSize="12" FontFamily="{StaticResource DefaultFont}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </Border>
 
-        <!-- 登录表单 -->
-        <StackPanel Grid.Row="1" Margin="40,32,40,32" VerticalAlignment="Center">
-            <Border Style="{StaticResource Card}">
-                <StackPanel>
-                    <TextBlock Text="选择医生" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                    <ComboBox Style="{StaticResource ComboBoxStyle}"
-                              ItemsSource="{Binding Doctors}"
-                              SelectedItem="{Binding SelectedDoctor}"
-                              DisplayMemberPath="DisplayName"
-                              Margin="0,0,0,16"/>
+        <!-- 右侧白色表单区 -->
+        <Border Grid.Column="1" Background="White">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="36,32,36,32">
 
-                    <TextBlock Text="登录PIN（如已设置）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                    <PasswordBox x:Name="PinBox" Margin="0,0,0,8" Padding="8,6"
-                                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                                 FontSize="13" KeyDown="PinBox_KeyDown"/>
+                    <!-- 登录区 -->
+                    <StackPanel Margin="0,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <Border Width="28" Height="28" CornerRadius="14"
+                                    Background="{StaticResource PrimaryBlueBrush}" Margin="0,0,10,0">
+                                <TextBlock Text="K" Foreground="White" FontWeight="Bold" FontSize="14"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="登录" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource TextDarkBrush}"
+                                       FontFamily="{StaticResource DefaultFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
 
-                    <!-- 错误信息 -->
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
-                               FontSize="12" Margin="0,4,0,0"
-                               Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        <TextBlock Text="选择医生" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                        <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                  ItemsSource="{Binding Doctors}"
+                                  SelectedItem="{Binding SelectedDoctor}"
+                                  DisplayMemberPath="DisplayName"
+                                  Margin="0,0,0,10"/>
+
+                        <TextBlock Text="工号" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                        <TextBox Style="{StaticResource InputBox}"
+                                 Text="{Binding SelectedDoctor.EmployeeNo, FallbackValue=''}"
+                                 IsReadOnly="True" Background="#F8FAFC" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="登录PIN密码" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                        <PasswordBox x:Name="PinBox" Margin="0,0,0,10" Padding="8,6"
+                                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                     FontSize="13" FontFamily="{StaticResource DefaultFont}"
+                                     KeyDown="PinBox_KeyDown"/>
+
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
+                                   FontSize="12" Margin="0,0,0,8"
+                                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="登 录" Style="{StaticResource PrimaryButton}"
+                                    Height="40" FontSize="14" Click="LoginButton_Click"/>
+                            <Button Grid.Column="1" Content="管理医生" Style="{StaticResource SecondaryButton}"
+                                    Height="40" Margin="8,0,0,0" Padding="12,8"
+                                    Click="AddDoctorButton_Click"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- 分割线 -->
+                    <Separator Style="{StaticResource Divider}" Margin="0,24"/>
+
+                    <!-- 首次登记区 -->
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <Border Width="28" Height="28" CornerRadius="14"
+                                    Background="{StaticResource PrimaryBlueBrush}" Margin="0,0,10,0">
+                                <TextBlock Text="R" Foreground="White" FontWeight="Bold" FontSize="14"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="首次登记" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource TextDarkBrush}"
+                                       FontFamily="{StaticResource DefaultFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="如需新增医生账号，点击「管理医生」按钮进行登记。"
+                                   Foreground="{StaticResource TextGrayBrush}" FontSize="12"
+                                   FontFamily="{StaticResource DefaultFont}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                        <Button Content="管理医生 / 首次登记" Style="{StaticResource SecondaryButton}"
+                                Height="40" HorizontalAlignment="Stretch"
+                                Click="AddDoctorButton_Click"/>
+                    </StackPanel>
+
                 </StackPanel>
-            </Border>
-
-            <Button Content="登 录" Style="{StaticResource PrimaryButton}"
-                    Height="42" Margin="0,16,0,0" FontSize="14"
-                    Click="LoginButton_Click"/>
-
-            <Button Content="新增医生" Style="{StaticResource SecondaryButton}"
-                    Height="36" Margin="0,8,0,0"
-                    Command="{Binding AddDoctorCommand}"
-                    Click="AddDoctorButton_Click"/>
-        </StackPanel>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Window>

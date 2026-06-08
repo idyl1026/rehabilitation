@@ -56,13 +56,21 @@ public class MainWorkbenchViewModel : BaseViewModel
     public Action<Admission>? OpenWordFile { get; set; }
     public Action<Admission>? OpenPatientDir { get; set; }
 
-    public RelayCommand NewPatientCommand => new(() => OpenNewPatient?.Invoke());
-    public RelayCommand NewNoteCommand => new(() => { if (SelectedAdmission != null) OpenNewNote?.Invoke(SelectedAdmission); });
-    public RelayCommand EditPatientCommand => new(() => { if (SelectedAdmission != null) OpenEditPatient?.Invoke(SelectedAdmission); });
-    public RelayCommand RehabCommand => new(() => { if (SelectedAdmission != null) OpenRehab?.Invoke(SelectedAdmission); });
-    public RelayCommand DischargeCommand => new(() => { if (SelectedAdmission != null) OpenDischarge?.Invoke(SelectedAdmission); });
-    public RelayCommand OpenWordCommand => new(() => { if (SelectedAdmission != null) OpenWordFile?.Invoke(SelectedAdmission); });
-    public RelayCommand OpenDirCommand => new(() => { if (SelectedAdmission != null) OpenPatientDir?.Invoke(SelectedAdmission); });
+    private RelayCommand? _newPatientCommand;
+    private RelayCommand? _newNoteCommand;
+    private RelayCommand? _editPatientCommand;
+    private RelayCommand? _rehabCommand;
+    private RelayCommand? _dischargeCommand;
+    private RelayCommand? _openWordCommand;
+    private RelayCommand? _openDirCommand;
+
+    public RelayCommand NewPatientCommand => _newPatientCommand ??= new(() => OpenNewPatient?.Invoke());
+    public RelayCommand NewNoteCommand => _newNoteCommand ??= new(() => { if (SelectedAdmission != null) OpenNewNote?.Invoke(SelectedAdmission); });
+    public RelayCommand EditPatientCommand => _editPatientCommand ??= new(() => { if (SelectedAdmission != null) OpenEditPatient?.Invoke(SelectedAdmission); });
+    public RelayCommand RehabCommand => _rehabCommand ??= new(() => { if (SelectedAdmission != null) OpenRehab?.Invoke(SelectedAdmission); });
+    public RelayCommand DischargeCommand => _dischargeCommand ??= new(() => { if (SelectedAdmission != null) OpenDischarge?.Invoke(SelectedAdmission); });
+    public RelayCommand OpenWordCommand => _openWordCommand ??= new(() => { if (SelectedAdmission != null) OpenWordFile?.Invoke(SelectedAdmission); });
+    public RelayCommand OpenDirCommand => _openDirCommand ??= new(() => { if (SelectedAdmission != null) OpenPatientDir?.Invoke(SelectedAdmission); });
 
     public MainWorkbenchViewModel()
     {

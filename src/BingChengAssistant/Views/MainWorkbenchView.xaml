@@ -19,27 +19,33 @@
             <RowDefinition Height="28"/>
         </Grid.RowDefinitions>
 
-        <!-- ── 顶部标题栏 ── -->
+        <!-- 顶部标题栏 -->
         <Border Grid.Row="0" Style="{StaticResource HeaderPanel}">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🏥 病程助手 v1.2" Foreground="White" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Text=" — " Foreground="#5B8DB8" FontSize="14" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding DoctorInfo}" Foreground="#A8C4E0" FontSize="13" VerticalAlignment="Center"/>
+                <!-- 左：标题 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="病程助手 v1.2" Foreground="White" FontSize="16" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <Rectangle Width="1" Height="20" Fill="#3B5A8B" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding DoctorInfo}" Foreground="#A8C4E0" FontSize="13"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
-                    <Button Content="⚙ 设置" Style="{StaticResource SecondaryButton}"
-                            Padding="10,4" FontSize="12" Background="Transparent"
-                            Foreground="White" BorderBrush="#5B8DB8"/>
+                <!-- 右：快捷按钮 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Button Content="+ 新建患者" Style="{StaticResource SecondaryButton}"
+                            Padding="10,4" FontSize="12" Margin="0,0,6,0"
+                            Background="#1F4A80" Foreground="White" BorderBrush="#3B5A8B"
+                            Command="{Binding NewPatientCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ── 主体三列 ── -->
+        <!-- 主体三列 -->
         <Grid Grid.Row="1" Margin="8,8,8,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="240"/>
@@ -47,10 +53,11 @@
                 <ColumnDefinition Width="260"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ── 左列：患者列表 ── -->
+            <!-- 左列：医生工作区 -->
             <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,4,0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -58,22 +65,64 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- 标题 -->
-                    <Border Grid.Row="0" Padding="12,10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                        <TextBlock Text="患者工作台" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextDarkBrush}"/>
+                    <!-- 医生头像区 -->
+                    <Border Grid.Row="0" Padding="12,10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+                            Background="#F8FAFC">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="36" Height="36" CornerRadius="18" Background="{StaticResource PrimaryBlueBrush}"
+                                    Margin="0,0,10,0">
+                                <TextBlock Text="医" Foreground="White" FontSize="14" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding DoctorInfo}" FontWeight="Bold" FontSize="12"
+                                           Foreground="{StaticResource TextDarkBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </StackPanel>
                     </Border>
 
-                    <!-- 搜索 -->
-                    <TextBox Grid.Row="1" Style="{StaticResource InputBox}"
+                    <!-- 统计数字 -->
+                    <Grid Grid.Row="1" Margin="8,8,8,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#EEF4FF" CornerRadius="4" Padding="6,6" Margin="0,0,3,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding InHospitalCount}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryBlueBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="在院" FontSize="10" Foreground="{StaticResource TextGrayBrush}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Background="#F8FAFC" CornerRadius="4" Padding="6,6" Margin="3,0,3,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding DischargedCount}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource TextGrayBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="出院" FontSize="10" Foreground="{StaticResource TextGrayBrush}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Background="#F0FFF4" CornerRadius="4" Padding="6,6" Margin="3,0,0,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding ArchivedCount}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="归档" FontSize="10" Foreground="{StaticResource TextGrayBrush}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- 搜索框 -->
+                    <TextBox Grid.Row="2" Style="{StaticResource InputBox}"
                              Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="8,8,8,4"
-                             xml:space="preserve"/>
+                             Margin="8,4,8,4"/>
 
                     <!-- 状态筛选 -->
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="8,2,8,4">
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="8,2,8,4">
                         <RadioButton Content="全部" IsChecked="True" Margin="0,0,6,0"
                                      FontSize="12" FontFamily="{StaticResource DefaultFont}"
-                                     Command="{Binding DataContext.NewPatientCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                      Checked="StatusFilter_Checked" Tag=""/>
                         <RadioButton Content="在院" Margin="0,0,6,0" FontSize="12"
                                      FontFamily="{StaticResource DefaultFont}"
@@ -87,7 +136,7 @@
                     </StackPanel>
 
                     <!-- 患者列表 -->
-                    <ListBox Grid.Row="3"
+                    <ListBox Grid.Row="4"
                              ItemsSource="{Binding Admissions}"
                              SelectedItem="{Binding SelectedAdmission}"
                              BorderThickness="0" Background="Transparent"
@@ -108,13 +157,16 @@
                                                 <TextBlock Text="{Binding Status}" FontSize="10" Foreground="White"/>
                                             </Border>
                                         </Grid>
-                                        <TextBlock Text="{Binding BedNo, StringFormat='{}🛏 {0}床'}" FontSize="11"
-                                                   Foreground="{StaticResource TextGrayBrush}" Margin="0,1,0,0"/>
+                                        <TextBlock FontSize="11" Foreground="{StaticResource TextGrayBrush}" Margin="0,2,0,0">
+                                            <Run Text="{Binding AdmissionDate, StringFormat='入院 {0:MM-dd}'}"/>
+                                            <Run Text=" | 床号:"/>
+                                            <Run Text="{Binding BedNo}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding AdmissionNo, StringFormat='住院号: {0}'}" FontSize="10"
+                                                   Foreground="#9BAFC0" Margin="0,1,0,0"/>
                                         <TextBlock Text="{Binding MainDiagnosis}" FontSize="11"
                                                    Foreground="{StaticResource TextGrayBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding AdmissionDate, StringFormat='{}入院 {0:MM-dd}'}"
-                                                   FontSize="10" Foreground="#9BAFC0" Margin="0,1,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -128,16 +180,16 @@
                         </ListBox.ItemContainerStyle>
                     </ListBox>
 
-                    <!-- 底部按钮 -->
-                    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="8,6,8,8">
+                    <!-- 底部新建按钮 -->
+                    <StackPanel Grid.Row="5" Margin="8,6,8,8">
                         <Button Content="+ 新建患者" Style="{StaticResource PrimaryButton}"
-                                Padding="10,6" FontSize="12"
+                                HorizontalAlignment="Stretch" Padding="10,7" FontSize="12"
                                 Command="{Binding NewPatientCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- ── 中列：病程记录 ── -->
+            <!-- 中列：患者详情与病程 -->
             <Border Grid.Column="1" Style="{StaticResource Card}" Margin="4,0,4,0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -148,65 +200,81 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- 患者摘要栏 -->
-                    <Border Grid.Row="0" Background="#EEF4FF" Padding="12,8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                    <!-- 患者信息头部卡片 -->
+                    <Border Grid.Row="0" Background="#EEF4FF" Padding="14,10"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDarkBrush}">
-                                    <Run Text="{Binding SelectedAdmission.Patient.Name, FallbackValue='请从左侧选择患者'}"/>
-                                    <Run Text="  "/>
-                                    <Run Text="{Binding SelectedAdmission.Patient.Gender, FallbackValue=''}" Foreground="{StaticResource TextGrayBrush}" FontSize="12"/>
-                                    <Run Text="{Binding SelectedAdmission.Patient.Age, FallbackValue='', StringFormat='{}{0}岁'}" Foreground="{StaticResource TextGrayBrush}" FontSize="12"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextDarkBrush}"
+                                               Text="{Binding SelectedAdmission.Patient.Name, FallbackValue='请从左侧选择患者'}"
+                                               Margin="0,0,10,0"/>
+                                    <TextBlock FontSize="13" Foreground="{StaticResource TextGrayBrush}"
+                                               VerticalAlignment="Bottom" Margin="0,0,0,1">
+                                        <Run Text="{Binding SelectedAdmission.Patient.Gender, FallbackValue=''}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{Binding SelectedAdmission.Patient.Age, FallbackValue='', StringFormat='{}{0}岁'}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock FontSize="12" Foreground="{StaticResource TextGrayBrush}" Margin="0,3,0,0">
+                                    <Run Text="住院号:"/>
+                                    <Run Text="{Binding SelectedAdmission.AdmissionNo, FallbackValue='—'}"/>
+                                    <Run Text="  床号:"/>
+                                    <Run Text="{Binding SelectedAdmission.BedNo, FallbackValue='—'}"/>
+                                    <Run Text="  入院:"/>
+                                    <Run Text="{Binding SelectedAdmission.AdmissionDate, FallbackValue='', StringFormat='{}{0:yyyy-MM-dd}'}"/>
                                 </TextBlock>
-                                <TextBlock FontSize="12" Foreground="{StaticResource TextGrayBrush}" Margin="0,2,0,0">
-                                    <Run Text="{Binding SelectedAdmission.MainDiagnosis, FallbackValue=''}"/>
-                                    <Run Text="   住院号："/>
-                                    <Run Text="{Binding SelectedAdmission.AdmissionNo, FallbackValue=''}"/>
-                                    <Run Text="   床号："/>
-                                    <Run Text="{Binding SelectedAdmission.BedNo, FallbackValue=''}"/>
-                                </TextBlock>
+                                <TextBlock FontSize="12" Foreground="{StaticResource TextGrayBrush}" Margin="0,2,0,0"
+                                           Text="{Binding SelectedAdmission.MainDiagnosis, FallbackValue=''}"
+                                           TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
+                            <Border Grid.Column="1" CornerRadius="3" Padding="6,2" VerticalAlignment="Top"
+                                    Background="{Binding SelectedAdmission.Status, Converter={StaticResource StatusToColorConverter}, FallbackValue=Gray}">
+                                <TextBlock Text="{Binding SelectedAdmission.Status, FallbackValue=''}"
+                                           FontSize="11" Foreground="White"/>
+                            </Border>
                         </Grid>
                     </Border>
 
-                    <!-- 工具栏 -->
+                    <!-- 操作按钮行 -->
                     <Border Grid.Row="1" Padding="12,8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="✏ 新建病程" Style="{StaticResource PrimaryButton}"
-                                    Padding="12,6" FontSize="12" Margin="0,0,8,0"
-                                    Command="{Binding NewNoteCommand}"/>
-                            <Button Content="📋 患者档案" Style="{StaticResource SecondaryButton}"
-                                    Padding="10,6" FontSize="12" Margin="0,0,8,0"
+                        <WrapPanel>
+                            <Button Content="患者档案" Style="{StaticResource SecondaryButton}"
+                                    Padding="10,5" FontSize="12" Margin="0,0,6,0"
                                     Command="{Binding EditPatientCommand}"/>
-                            <Button Content="🩺 康复评估" Style="{StaticResource SecondaryButton}"
-                                    Padding="10,6" FontSize="12" Margin="0,0,8,0"
+                            <Button Content="新建病程" Style="{StaticResource PrimaryButton}"
+                                    Padding="10,5" FontSize="12" Margin="0,0,6,0"
+                                    Command="{Binding NewNoteCommand}"/>
+                            <Button Content="康复评估" Style="{StaticResource SecondaryButton}"
+                                    Padding="10,5" FontSize="12" Margin="0,0,6,0"
                                     Command="{Binding RehabCommand}"/>
-                            <Button Content="🏠 出院归档" Style="{StaticResource DangerButton}"
-                                    Padding="10,6" FontSize="12" Margin="0,0,8,0"
+                            <Button Content="出院归档" Style="{StaticResource DangerButton}"
+                                    Padding="10,5" FontSize="12" Margin="0,0,6,0"
                                     Command="{Binding DischargeCommand}"/>
-                            <Button Content="📂 打开目录" Style="{StaticResource SecondaryButton}"
-                                    Padding="10,6" FontSize="12" Margin="0,0,8,0"
+                            <Button Content="打开目录" Style="{StaticResource SecondaryButton}"
+                                    Padding="10,5" FontSize="12" Margin="0,0,6,0"
                                     Command="{Binding OpenDirCommand}"/>
-                            <Button Content="📄 Word" Style="{StaticResource SecondaryButton}"
-                                    Padding="10,6" FontSize="12"
+                            <Button Content="打开Word" Style="{StaticResource SecondaryButton}"
+                                    Padding="10,5" FontSize="12"
                                     Command="{Binding OpenWordCommand}"/>
-                        </StackPanel>
+                        </WrapPanel>
                     </Border>
 
                     <!-- 病程历史标题 -->
-                    <TextBlock Grid.Row="2" Text="病程历史记录（双击编辑）"
-                               FontWeight="Bold" FontSize="13" Margin="12,10,12,6"
-                               Foreground="{StaticResource TextDarkBrush}"/>
+                    <Border Grid.Row="2" Padding="12,8,12,6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="病程记录（双击编辑）" FontWeight="Bold" FontSize="13"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
+                    </Border>
 
                     <!-- 病程列表 -->
                     <ListView Grid.Row="3"
                               ItemsSource="{Binding Notes}"
                               BorderThickness="0" Background="Transparent"
-                              Margin="8,0,8,0">
+                              Margin="8,4,8,4">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="日期" Width="130"
@@ -221,39 +289,60 @@
                         </ListView.View>
                     </ListView>
 
-                    <!-- 底部统计 -->
-                    <Border Grid.Row="4" Background="#F8FAFC" Padding="12,6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock FontSize="12" Foreground="{StaticResource TextGrayBrush}">
-                                <Run Text="在院 "/>
-                                <Run Text="{Binding InHospitalCount}" FontWeight="Bold" Foreground="{StaticResource PrimaryBlueBrush}"/>
-                                <Run Text="  已出院 "/>
-                                <Run Text="{Binding DischargedCount}" FontWeight="Bold" Foreground="{StaticResource TextGrayBrush}"/>
-                                <Run Text="  已归档 "/>
-                                <Run Text="{Binding ArchivedCount}" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}"/>
-                            </TextBlock>
-                        </StackPanel>
+                    <!-- 底部状态 -->
+                    <Border Grid.Row="4" Background="#F8FAFC" Padding="12,6"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                        <TextBlock FontSize="12" Foreground="{StaticResource TextGrayBrush}">
+                            <Run Text="在院 "/>
+                            <Run Text="{Binding InHospitalCount}" FontWeight="Bold" Foreground="{StaticResource PrimaryBlueBrush}"/>
+                            <Run Text="  已出院 "/>
+                            <Run Text="{Binding DischargedCount}" FontWeight="Bold" Foreground="{StaticResource TextGrayBrush}"/>
+                            <Run Text="  已归档 "/>
+                            <Run Text="{Binding ArchivedCount}" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}"/>
+                        </TextBlock>
                     </Border>
                 </Grid>
             </Border>
 
-            <!-- ── 右列：推荐与评估 ── -->
+            <!-- 右列：推荐与评估记录 -->
             <Border Grid.Column="2" Style="{StaticResource Card}" Margin="4,0,0,0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- 推荐模板 -->
                     <Border Grid.Row="0" Padding="12,10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                        <TextBlock Text="⚡ 康复评估记录" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextDarkBrush}"/>
+                        <TextBlock Text="[*] 推荐模板" FontWeight="Bold" FontSize="13"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
+                    </Border>
+                    <StackPanel Grid.Row="1" Margin="12,8,12,4">
+                        <Border Background="#EEF4FF" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
+                            <TextBlock Text="首次病程模板" FontSize="12" Foreground="{StaticResource PrimaryBlueBrush}"/>
+                        </Border>
+                        <Border Background="#EEF4FF" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
+                            <TextBlock Text="日常病程模板" FontSize="12" Foreground="{StaticResource PrimaryBlueBrush}"/>
+                        </Border>
+                        <Border Background="#EEF4FF" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
+                            <TextBlock Text="上级查房记录" FontSize="12" Foreground="{StaticResource PrimaryBlueBrush}"/>
+                        </Border>
+                        <Border Background="#EEF4FF" CornerRadius="4" Padding="8,6">
+                            <TextBlock Text="出院前病程" FontSize="12" Foreground="{StaticResource PrimaryBlueBrush}"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- 推荐评估 -->
+                    <Border Grid.Row="2" Padding="12,8,12,4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                        <TextBlock Text="[*] 推荐评估量表" FontWeight="Bold" FontSize="13"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
                     </Border>
 
-                    <TextBlock Grid.Row="1" Text="当前患者最近评估" Foreground="{StaticResource TextGrayBrush}"
-                               FontSize="11" Margin="12,6,12,2"/>
-
-                    <ListView Grid.Row="2"
+                    <!-- 康复评估记录 -->
+                    <ListView Grid.Row="3"
                               ItemsSource="{Binding Rehabs}"
                               BorderThickness="0" Background="Transparent"
                               Margin="4">
@@ -273,11 +362,18 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+
+                    <!-- 一键刷新 -->
+                    <StackPanel Grid.Row="4" Margin="8,6,8,8">
+                        <Button Content="一键刷新" Style="{StaticResource SecondaryButton}"
+                                HorizontalAlignment="Stretch" Padding="10,6" FontSize="12"
+                                Click="RefreshButton_Click"/>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- ── 底部状态栏 ── -->
+        <!-- 底部状态栏 -->
         <Border Grid.Row="2" Background="#E8EEF4" Padding="12,0">
             <TextBlock Text="病程助手 v1.2  |  内网单机版  |  仅用于辅助病程书写，不替代正式电子病历系统"
                        FontSize="11" Foreground="{StaticResource TextGrayBrush}" VerticalAlignment="Center"/>

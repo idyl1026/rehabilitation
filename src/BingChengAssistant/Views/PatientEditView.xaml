@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:BingChengAssistant.ViewModels"
         Title="患者档案"
-        Width="700" Height="680"
+        Width="780" Height="700"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Style="{StaticResource BaseWindow}">
@@ -19,98 +19,177 @@
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
 
+        <!-- 标题栏 -->
         <Border Grid.Row="0" Style="{StaticResource HeaderPanel}">
-            <TextBlock Text="患者档案" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="患者档案" Foreground="White" FontSize="16" FontWeight="Bold"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="— 基本信息与住院记录" Foreground="#A8C4E0" FontSize="13" VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16">
-            <StackPanel>
-                <!-- 基本信息 -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
-                    <StackPanel>
-                        <TextBlock Text="基本信息" Style="{StaticResource SectionTitle}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                <TextBlock Text="姓名 *" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                <TextBlock Text="年龄" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                <TextBlock Text="联系电话" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                                <TextBlock Text="性别" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <ComboBox Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding Gender}" Margin="0,0,0,10">
-                                    <ComboBoxItem>男</ComboBoxItem>
-                                    <ComboBoxItem>女</ComboBoxItem>
-                                </ComboBox>
-                                <TextBlock Text="过敏史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding AllergyHistory}" Margin="0,0,0,10"/>
-                                <TextBlock Text="既往史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding PastHistory}" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- 住院信息 -->
-                <Border Style="{StaticResource Card}">
-                    <StackPanel>
-                        <TextBlock Text="住院信息" Style="{StaticResource SectionTitle}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                <TextBlock Text="住院号" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding AdmissionNo}" Margin="0,0,0,10"/>
-                                <TextBlock Text="入院日期 *" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <DatePicker SelectedDate="{Binding AdmissionDate}" FontFamily="{StaticResource DefaultFont}"
-                                            BorderBrush="{StaticResource BorderBrush}" Margin="0,0,0,10"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Margin="8,0,8,0">
-                                <TextBlock Text="床号" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding BedNo}" Margin="0,0,0,10"/>
-                                <TextBlock Text="科室" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding Department}" Margin="0,0,0,10"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2" Margin="8,0,0,0">
-                                <TextBlock Text="医保类型" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <ComboBox Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding InsuranceType}" IsEditable="True" Margin="0,0,0,10">
-                                    <ComboBoxItem>职工医保</ComboBoxItem>
-                                    <ComboBoxItem>居民医保</ComboBoxItem>
-                                    <ComboBoxItem>自费</ComboBoxItem>
-                                    <ComboBoxItem>商业保险</ComboBoxItem>
-                                </ComboBox>
-                                <TextBlock Text="参保地" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                <TextBox Style="{StaticResource InputBox}" Text="{Binding InsuranceRegion}" Margin="0,0,0,10"/>
-                            </StackPanel>
-                        </Grid>
-                        <TextBlock Text="主要诊断 *" Style="{StaticResource FieldLabel}" Margin="0,4,0,4"/>
-                        <TextBox Style="{StaticResource InputBox}" Text="{Binding MainDiagnosis}" Margin="0,0,0,10"/>
-                        <TextBlock Text="次要诊断" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                        <TextBox Style="{StaticResource InputBox}" Text="{Binding SecondaryDiagnosis}"/>
-                    </StackPanel>
-                </Border>
+                <!-- 左：主要表单 -->
+                <StackPanel Grid.Column="0" Margin="0,0,12,0">
 
-                <!-- 错误信息 -->
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
-                           FontSize="12" Margin="0,8,0,0"
-                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
-            </StackPanel>
+                    <!-- 卡片1：基本信息 -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="基本信息" Style="{StaticResource SectionTitle}"/>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="姓名 *" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                    <TextBlock Text="性别" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <ComboBox Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding Gender}">
+                                        <ComboBoxItem>男</ComboBoxItem>
+                                        <ComboBoxItem>女</ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                    <TextBlock Text="年龄" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="3">
+                                    <TextBlock Text="联系电话" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="过敏史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding AllergyHistory}"
+                                             Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="既往史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding PastHistory}"
+                                             Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="备注" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                <TextBox Style="{StaticResource InputBox}" Text="{Binding Remark}"
+                                         Height="48" TextWrapping="Wrap" AcceptsReturn="True"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 卡片2：住院信息 -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="住院信息" Style="{StaticResource SectionTitle}"/>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="住院号" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding AdmissionNo}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                    <TextBlock Text="床号" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding BedNo}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="科室" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding Department}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="入院日期 *" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <DatePicker SelectedDate="{Binding AdmissionDate}"
+                                                FontFamily="{StaticResource DefaultFont}"
+                                                BorderBrush="{StaticResource BorderBrush}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                    <TextBlock Text="医保类型" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                              SelectedItem="{Binding InsuranceType}" IsEditable="True">
+                                        <ComboBoxItem>职工医保</ComboBoxItem>
+                                        <ComboBoxItem>居民医保</ComboBoxItem>
+                                        <ComboBoxItem>自费</ComboBoxItem>
+                                        <ComboBoxItem>商业保险</ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="参保地" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding InsuranceRegion}"/>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="主要诊断 *" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                <TextBox Style="{StaticResource InputBox}" Text="{Binding MainDiagnosis}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="次要诊断" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                <TextBox Style="{StaticResource InputBox}" Text="{Binding SecondaryDiagnosis}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 错误信息 -->
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
+                               FontSize="12" Margin="0,8,0,0"
+                               Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                </StackPanel>
+
+                <!-- 右侧：患者Word文档卡片 -->
+                <StackPanel Grid.Column="1">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="患者Word文档" Style="{StaticResource SectionTitle}"/>
+                            <Border Background="#F8FAFC" CornerRadius="4" Padding="8,6"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                    Margin="0,0,0,10">
+                                <TextBlock Text="新建患者后自动生成" FontSize="11"
+                                           Foreground="{StaticResource TextGrayBrush}" TextWrapping="Wrap"/>
+                            </Border>
+                            <Button Content="打开Word" Style="{StaticResource SecondaryButton}"
+                                    HorizontalAlignment="Stretch" Padding="8,6" Margin="0,0,0,6"
+                                    FontSize="12"/>
+                            <Button Content="打开目录" Style="{StaticResource SecondaryButton}"
+                                    HorizontalAlignment="Stretch" Padding="8,6"
+                                    FontSize="12"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
 
         <!-- 底部按钮 -->
-        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="20,10">
+        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="20,10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="取消" Style="{StaticResource SecondaryButton}" Width="80" Margin="0,0,10,0" IsCancel="True"/>
-                <Button Content="保存档案" Style="{StaticResource PrimaryButton}" Width="110"
+                <Button Content="取消" Style="{StaticResource SecondaryButton}"
+                        Width="80" Margin="0,0,10,0" IsCancel="True"/>
+                <Button Content="保存档案" Style="{StaticResource PrimaryButton}" Width="120"
                         Command="{Binding SaveCommand}" Click="SaveButton_Click"/>
             </StackPanel>
         </Border>

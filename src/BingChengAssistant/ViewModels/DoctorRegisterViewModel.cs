@@ -27,7 +27,8 @@ public class DoctorRegisterViewModel : BaseViewModel
 
     public Action? OnSuccess { get; set; }
 
-    public RelayCommand RegisterCommand => new(Register);
+    private RelayCommand? _registerCommand;
+    public RelayCommand RegisterCommand => _registerCommand ??= new(Register);
 
     private void Register()
     {

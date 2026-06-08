@@ -32,7 +32,8 @@ public class DischargeArchiveViewModel : BaseViewModel
     public string[] OutcomeOptions { get; } = { "痊愈", "好转", "未愈", "转院", "死亡" };
 
     public Action? OnArchived { get; set; }
-    public RelayCommand ArchiveCommand => new(Archive);
+    private RelayCommand? _archiveCommand;
+    public RelayCommand ArchiveCommand => _archiveCommand ??= new(Archive);
 
     private void LoadData()
     {

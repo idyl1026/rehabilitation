@@ -33,9 +33,12 @@ public class ProgressNoteEditViewModel : BaseViewModel
 
     public Action? OnSaved { get; set; }
 
-    public RelayCommand SaveCommand => new(Save);
-    public RelayCommand CopyCommand => new(CopyToClipboard);
-    public RelayCommand SyncWordCommand => new(SyncWord);
+    private RelayCommand? _saveCommand;
+    private RelayCommand? _copyCommand;
+    private RelayCommand? _syncWordCommand;
+    public RelayCommand SaveCommand => _saveCommand ??= new(Save);
+    public RelayCommand CopyCommand => _copyCommand ??= new(CopyToClipboard);
+    public RelayCommand SyncWordCommand => _syncWordCommand ??= new(SyncWord);
 
     public ProgressNoteEditViewModel()
     {

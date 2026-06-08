@@ -46,9 +46,12 @@ public class RehabAssessmentViewModel : BaseViewModel
     public string NoteText { get => _noteText; set => SetField(ref _noteText, value); }
 
     public Action? OnSaved { get; set; }
-    public RelayCommand CalcCommand => new(Calculate);
-    public RelayCommand SaveCommand => new(Save);
-    public RelayCommand CopyNoteCommand => new(() => { if (!string.IsNullOrEmpty(NoteText)) Clipboard.SetText(NoteText); });
+    private RelayCommand? _calcCommand;
+    private RelayCommand? _saveCommand;
+    private RelayCommand? _copyNoteCommand;
+    public RelayCommand CalcCommand => _calcCommand ??= new(Calculate);
+    public RelayCommand SaveCommand => _saveCommand ??= new(Save);
+    public RelayCommand CopyNoteCommand => _copyNoteCommand ??= new(() => { if (!string.IsNullOrEmpty(NoteText)) Clipboard.SetText(NoteText); });
 
     public RehabAssessmentViewModel()
     {

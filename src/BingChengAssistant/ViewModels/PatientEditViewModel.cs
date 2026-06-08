@@ -38,7 +38,8 @@ public class PatientEditViewModel : BaseViewModel
     private int _patientId, _admissionId;
 
     public Action? OnSuccess { get; set; }
-    public RelayCommand SaveCommand => new(Save);
+    private RelayCommand? _saveCommand;
+    public RelayCommand SaveCommand => _saveCommand ??= new(Save);
 
     public PatientEditViewModel() { }
 

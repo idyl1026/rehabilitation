@@ -74,4 +74,9 @@ public partial class MainWorkbenchView : System.Windows.Window
         if (sender is System.Windows.Controls.RadioButton rb && _vm != null)
             _vm.StatusFilter = rb.Tag?.ToString() ?? "";
     }
+
+    private void RefreshButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        _vm.LoadAdmissions();
+    }
 }

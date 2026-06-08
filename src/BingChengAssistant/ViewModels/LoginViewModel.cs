@@ -19,8 +19,10 @@ public class LoginViewModel : BaseViewModel
     public Action? OnLoginSuccess { get; set; }
     public Action? OnAddDoctor { get; set; }
 
-    public RelayCommand LoginCommand => new(Login);
-    public RelayCommand AddDoctorCommand => new(() => OnAddDoctor?.Invoke());
+    private RelayCommand? _loginCommand;
+    private RelayCommand? _addDoctorCommand;
+    public RelayCommand LoginCommand => _loginCommand ??= new(Login);
+    public RelayCommand AddDoctorCommand => _addDoctorCommand ??= new(() => OnAddDoctor?.Invoke());
 
     public LoginViewModel()
     {
