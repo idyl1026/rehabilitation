@@ -1,3 +1,4 @@
+using System.IO;
 namespace BingChengAssistant.Services;
 
 public static class LogService

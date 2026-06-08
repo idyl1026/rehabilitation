@@ -1,3 +1,4 @@
+using System.IO;
 namespace BingChengAssistant.Data;
 
 public static class DirectoryInitializer
