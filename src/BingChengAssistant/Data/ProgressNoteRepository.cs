@@ -105,6 +105,27 @@ public class TemplateRepository
         cmd.ExecuteNonQuery();
     }
 
+    public List<NoteTemplate> GetByType(string noteType)
+    {
+        using var c = DbConnectionFactory.Create();
+        using var cmd = c.CreateCommand();
+        cmd.CommandText = "SELECT * FROM note_templates WHERE is_active=1 AND note_type=@type ORDER BY is_built_in DESC, id ASC";
+        cmd.Parameters.AddWithValue("@type", noteType);
+        var list = new List<NoteTemplate>();
+        using var r = cmd.ExecuteReader();
+        while (r.Read()) list.Add(Map(r));
+        return list;
+    }
+
+    public void Delete(int id)
+    {
+        using var c = DbConnectionFactory.Create();
+        using var cmd = c.CreateCommand();
+        cmd.CommandText = "UPDATE note_templates SET is_active=0 WHERE id=@id AND is_built_in=0";
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.ExecuteNonQuery();
+    }
+
     private static NoteTemplate Map(SqliteDataReader r) => new()
     {
         Id = r.GetInt32(r.GetOrdinal("id")),
