@@ -12,37 +12,57 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup .NET
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Publish
-        run: dotnet publish src/MedicalProgress.App/MedicalProgress.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish_output
+      - name: Restore NuGet packages
+        run: dotnet restore src/MedicalProgress.App/MedicalProgress.App.csproj
+
+      - name: Build (check for errors)
+        run: dotnet build src/MedicalProgress.App/MedicalProgress.App.csproj -c Release --no-restore
+
+      - name: Publish single-file exe
+        run: >
+          dotnet publish src/MedicalProgress.App/MedicalProgress.App.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          --no-restore
+          -o publish_output
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 病程助手-v1.0-win-x64
+          name: MedicalProgress-v1.0-win-x64
           path: publish_output/MedicalProgress.App.exe
+          retention-days: 30
 
-      - name: Create Release
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: publish_output/MedicalProgress.App.exe
-          name: 病程助手 ${{ github.ref_name }}
+          name: "病程助手 ${{ github.ref_name }}"
           body: |
             ## 病程助手 ${{ github.ref_name }}
 
             ### 新功能
-            - 📖 从教材提取知识点
-            - 🔍 病程写作时自动匹配相关知识卡片
+            - 📖 从教材提取知识点（规则过滤，去除废话句）
+            - 🔍 写病程时自动匹配相关知识卡片（BM25检索）
             - 🍎 全新 Mac 风格界面
 
+            ### 使用方法
+            下载 `MedicalProgress.App.exe`，双击运行，无需安装任何依赖。
+
             ### 系统要求
-            - Windows 10/11 64位
-            - 无需安装 .NET 运行时（自包含）
+            - Windows 10 / 11（64位）
+            - 约 150MB 磁盘空间
