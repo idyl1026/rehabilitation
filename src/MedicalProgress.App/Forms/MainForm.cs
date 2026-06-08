@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using MedicalProgress.App.Helpers;
 using MedicalProgress.App.Models;
 using MedicalProgress.App.Services;
 
@@ -7,39 +8,27 @@ namespace MedicalProgress.App.Forms;
 
 public class MainForm : Form
 {
-    // ── 颜色主题 ──────────────────────────────────────────────
-    private static readonly Color ClrHeaderBg    = Color.FromArgb(10,  90, 160);
-    private static readonly Color ClrHeaderText  = Color.White;
-    private static readonly Color ClrPanelBlue   = Color.FromArgb(232, 245, 253);
-    private static readonly Color ClrPanelGreen  = Color.FromArgb(232, 248, 240);
-    private static readonly Color ClrInfoBar     = Color.FromArgb(213, 237, 255);
-    private static readonly Color ClrStatusBar   = Color.FromArgb(245, 250, 253);
-    private static readonly Color ClrBtnBlue     = Color.FromArgb(21, 101, 192);
-    private static readonly Color ClrBtnGreen    = Color.FromArgb(27, 130, 80);
-    private static readonly Color ClrBtnRed      = Color.FromArgb(198, 40,  40);
-    private static readonly Color ClrBtnTeal     = Color.FromArgb(0,  137, 123);
-    private static readonly Color ClrBtnPurple   = Color.FromArgb(100, 55, 175);
-    private static readonly Color ClrBtnGray     = Color.FromArgb(96, 108, 118);
-    private static readonly Font  FontMain       = new("Microsoft YaHei UI", 9);
-    private static readonly Font  FontBold       = new("Microsoft YaHei UI", 9,  FontStyle.Bold);
-    private static readonly Font  FontLarge      = new("Microsoft YaHei UI", 10, FontStyle.Bold);
-
     // ── 服务 ─────────────────────────────────────────────────
-    private readonly DatabaseService      _databaseService  = new();
-    private readonly GeneratorService     _generatorService = new();
-    private readonly PatientFolderService _folderService    = new();
+    private readonly DatabaseService        _databaseService      = new();
+    private readonly GeneratorService       _generatorService     = new();
+    private readonly PatientFolderService   _folderService        = new();
+    private readonly KnowledgeCardMatchService _matchService      = new();
 
     // ── 控件 ─────────────────────────────────────────────────
-    private ListBox  lstPatients       = null!;
-    private Label    lblPatientInfo    = null!;
-    private Label    lblStatus         = null!;
-    private Label    lblPatientCount   = null!;
-    private ListView lvProgressHistory = null!;
-    private CheckBox chkShowDischarged = null!;
+    private ListBox   lstPatients        = null!;
+    private TextBox   txtSearch          = null!;
+    private Label     lblPatientInfo     = null!;
+    private Label     lblStatus          = null!;
+    private Label     lblPatientCount    = null!;
+    private ListView  lvProgressHistory  = null!;
+    private CheckBox  chkShowDischarged  = null!;
+    private ListBox   lstKnowledge       = null!;
+    private Label     lblKnowledgeStatus = null!;
 
     // ── 状态 ─────────────────────────────────────────────────
     private Patient?             _currentPatient         = null;
     private List<ProgressRecord> _currentProgressRecords = new();
+    private List<Patient>        _allPatients            = new();
 
     public MainForm()
     {
@@ -53,17 +42,14 @@ public class MainForm : Form
 
     private void InitializeComponent()
     {
-        Text            = "病程助手 v1.0";
-        Size            = new Size(1440, 880);
-        MinimumSize     = new Size(1200, 720);
-        StartPosition   = FormStartPosition.CenterScreen;
-        BackColor       = Color.FromArgb(245, 249, 253);
+        Text          = "病程助手 v1.0";
+        Size          = new Size(1500, 900);
+        MinimumSize   = new Size(1200, 720);
+        StartPosition = FormStartPosition.CenterScreen;
+        AppleStyleHelper.ApplyFormStyle(this);
 
-        var header = BuildHeader();
-        var body   = BuildBody();
-
-        Controls.Add(body);
-        Controls.Add(header);
+        Controls.Add(BuildBody());
+        Controls.Add(BuildHeader());
     }
 
     // ── Header ────────────────────────────────────────────────
@@ -73,12 +59,23 @@ public class MainForm : Form
         var header = new Panel
         {
             Dock      = DockStyle.Top,
-            Height    = 76,
-            BackColor = ClrHeaderBg
+            Height    = 56,
+            BackColor = AppleStyleHelper.HeaderDark
         };
 
+        var lblTitle = new Label
+        {
+            Text      = "病 程 助 手",
+            Font      = new Font("Segoe UI", 18f, FontStyle.Bold),
+            ForeColor = Color.White,
+            AutoSize  = true,
+            Top       = 12
+        };
+        header.Controls.Add(lblTitle);
+        header.Resize += (_, _) => lblTitle.Left = (header.Width - lblTitle.PreferredWidth) / 2;
+
+        // Logo（左侧）
         var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.png");
-        Control logoCtrl;
         if (File.Exists(logoPath))
         {
             try
@@ -87,164 +84,159 @@ public class MainForm : Form
                 {
                     Image    = Image.FromFile(logoPath),
                     SizeMode = PictureBoxSizeMode.Zoom,
-                    Width    = 300,
-                    Height   = 66,
+                    Width    = 280,
+                    Height   = 46,
                     Left     = 10,
                     Top      = 5,
                     BackColor= Color.Transparent
                 };
-                logoCtrl = pb;
+                header.Controls.Add(pb);
             }
-            catch { logoCtrl = BuildTextLogo(); }
+            catch { header.Controls.Add(BuildTextLogo()); }
         }
         else
         {
-            logoCtrl = BuildTextLogo();
+            header.Controls.Add(BuildTextLogo());
         }
 
-        var lblTitle = new Label
+        // 版本号（右侧）
+        var lblVer = new Label
         {
-            Text      = "病 程 助 手",
-            Font      = new Font("Microsoft YaHei UI", 22, FontStyle.Bold),
-            ForeColor = ClrHeaderText,
+            Text      = "v1.0    作者：刘奕  liuyi@ahmu.edu.cn",
+            Font      = new Font("Segoe UI", 8.5f),
+            ForeColor = Color.FromArgb(160, 160, 175),
             AutoSize  = true,
             Top       = 18
         };
-        header.Controls.Add(lblTitle);
-        header.Resize += (_, _) => lblTitle.Left = (header.Width - lblTitle.PreferredWidth) / 2;
+        header.Controls.Add(lblVer);
+        header.Resize += (_, _) => lblVer.Left = header.Width - lblVer.PreferredWidth - 16;
 
-        var lblInfo = new Label
-        {
-            Text      = "v1.0    作者：刘奕\nliuyi@ahmu.edu.cn",
-            Font      = new Font("Microsoft YaHei UI", 8.5f),
-            ForeColor = Color.FromArgb(180, 220, 255),
-            AutoSize  = true,
-            TextAlign = ContentAlignment.TopRight,
-            Top       = 18
-        };
-        header.Controls.Add(lblInfo);
-        header.Resize += (_, _) => lblInfo.Left = header.Width - lblInfo.PreferredWidth - 20;
-
-        header.Controls.Add(logoCtrl);
         return header;
     }
 
     private static Control BuildTextLogo()
     {
-        var p = new Panel
-        {
-            Width    = 320,
-            Height   = 66,
-            Left     = 10,
-            Top      = 5,
-            BackColor= Color.Transparent
-        };
+        var p = new Panel { Width = 320, Height = 50, Left = 10, Top = 3, BackColor = Color.Transparent };
         p.Controls.Add(new Label
         {
             Text      = "安徽医科大学第二附属医院",
-            Font      = new Font("Microsoft YaHei UI", 13, FontStyle.Bold),
-            ForeColor = Color.FromArgb(160, 215, 255),
+            Font      = new Font("Segoe UI", 12f, FontStyle.Bold),
+            ForeColor = Color.FromArgb(160, 200, 255),
             AutoSize  = true,
             Left      = 0,
-            Top       = 6
+            Top       = 4
         });
         p.Controls.Add(new Label
         {
             Text      = "The 2nd Affiliated Hospital of Anhui Medical Univ.",
-            Font      = new Font("Arial", 8),
-            ForeColor = Color.FromArgb(130, 185, 230),
+            Font      = new Font("Segoe UI", 7.5f),
+            ForeColor = Color.FromArgb(120, 160, 210),
             AutoSize  = true,
             Left      = 0,
-            Top       = 40
+            Top       = 32
         });
         return p;
     }
 
-    // ── Body ─────────────────────────────────────────────────
+    // ── Body（三栏布局） ──────────────────────────────────────
 
     private Control BuildBody()
     {
-        var splitter = new SplitContainer
+        // 三栏：左（患者列表）| 中（工作区）| 右（知识推荐）
+        var outer = new TableLayoutPanel
         {
-            Dock             = DockStyle.Fill,
-            SplitterDistance = 218,
-            Panel1MinSize    = 180,
-            BackColor        = Color.FromArgb(200, 220, 240)
+            Dock        = DockStyle.Fill,
+            ColumnCount = 3,
+            RowCount    = 1,
+            BackColor   = AppleStyleHelper.BgGray
         };
-        splitter.SplitterMoved += (_, _) =>
-        {
-            if (splitter.SplitterDistance > 280) splitter.SplitterDistance = 280;
-        };
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 230));
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,  100));
+        outer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260));
 
-        splitter.Panel1.Controls.Add(BuildPatientPanel());
-        splitter.Panel2.Controls.Add(BuildWorkPanel());
+        outer.Controls.Add(BuildPatientPanel(),   0, 0);
+        outer.Controls.Add(BuildWorkPanel(),      1, 0);
+        outer.Controls.Add(BuildKnowledgePanel(), 2, 0);
 
-        return splitter;
+        return outer;
     }
 
-    // ── 患者列表面板 ──────────────────────────────────────────
+    // ── 左栏：患者列表 ────────────────────────────────────────
 
     private Control BuildPatientPanel()
     {
-        var panel = new Panel { Dock = DockStyle.Fill, BackColor = ClrPanelBlue, Padding = new Padding(8) };
-
-        var titleRow = new Panel { Dock = DockStyle.Top, Height = 34, BackColor = Color.Transparent };
-        var lblTitle = new Label
+        var panel = new Panel
         {
-            Text      = "患者列表",
-            Font      = FontLarge,
-            ForeColor = ClrBtnBlue,
-            AutoSize  = true,
-            Left      = 2,
-            Top       = 7
+            Dock      = DockStyle.Fill,
+            BackColor = AppleStyleHelper.BgGray,
+            Padding   = new Padding(10, 10, 6, 10)
         };
-        lblPatientCount = new Label
-        {
-            Text      = "",
-            Font      = FontMain,
-            ForeColor = Color.FromArgb(100, 130, 160),
-            AutoSize  = true,
-            Top       = 9
-        };
-        titleRow.Controls.AddRange(new Control[] { lblTitle, lblPatientCount });
-        lblTitle.SizeChanged += (_, _) => lblPatientCount.Left = lblTitle.Right + 6;
 
+        var card = AppleStyleHelper.CreateCard();
+        card.Dock    = DockStyle.Fill;
+        card.Padding = new Padding(0);
+
+        // 标题行
+        var titleBar = new Panel { Dock = DockStyle.Top, Height = 40, BackColor = Color.White, Padding = new Padding(12, 8, 8, 0) };
+        var lblTitle = AppleStyleHelper.CreateTitle("患者列表");
+        lblTitle.Dock      = DockStyle.Left;
+        lblTitle.TextAlign = ContentAlignment.MiddleLeft;
+        lblTitle.Width     = 100;
+        lblPatientCount = AppleStyleHelper.CreateLabel("");
+        lblPatientCount.Dock      = DockStyle.Right;
+        lblPatientCount.TextAlign = ContentAlignment.MiddleRight;
+        lblPatientCount.Width     = 50;
+        titleBar.Controls.Add(lblTitle);
+        titleBar.Controls.Add(lblPatientCount);
+
+        // 搜索框
+        var searchBar = new Panel { Dock = DockStyle.Top, Height = 38, BackColor = Color.White, Padding = new Padding(8, 5, 8, 0) };
+        txtSearch = AppleStyleHelper.CreateTextField();
+        txtSearch.Dock            = DockStyle.Fill;
+        txtSearch.PlaceholderText = "搜索患者…";
+        txtSearch.TextChanged    += (_, _) => ApplyPatientFilter();
+        searchBar.Controls.Add(txtSearch);
+
+        // 显示已出院
         chkShowDischarged = new CheckBox
         {
             Dock      = DockStyle.Top,
             Height    = 26,
             Text      = "显示已出院患者",
-            Font      = FontMain,
-            ForeColor = Color.FromArgb(80, 110, 140),
-            BackColor = Color.Transparent
+            Font      = AppleStyleHelper.FontSmall,
+            ForeColor = AppleStyleHelper.DisabledGray,
+            BackColor = Color.White,
+            Padding   = new Padding(12, 4, 0, 0)
         };
         chkShowDischarged.CheckedChanged += (_, _) => LoadPatients();
 
-        var sep = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = Color.FromArgb(195, 220, 240) };
+        // 分隔线
+        var sep = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = AppleStyleHelper.CardBorder };
 
+        // 患者列表
         lstPatients = new ListBox
         {
-            Dock            = DockStyle.Fill,
-            Font            = FontMain,
-            IntegralHeight  = false,
-            BorderStyle     = BorderStyle.None,
-            BackColor       = Color.FromArgb(245, 251, 255),
-            ItemHeight      = 26,
-            DrawMode        = DrawMode.OwnerDrawFixed
+            Dock           = DockStyle.Fill,
+            Font           = AppleStyleHelper.FontBody,
+            IntegralHeight = false,
+            BorderStyle    = BorderStyle.None,
+            BackColor      = Color.White,
+            ItemHeight     = 28,
+            DrawMode       = DrawMode.OwnerDrawFixed
         };
         lstPatients.DrawItem             += LstPatients_DrawItem;
         lstPatients.SelectedIndexChanged += (_, _) => SelectCurrentPatient();
         lstPatients.DoubleClick          += BtnEditPatient_Click;
 
-        // 2×2 按钮网格
+        // 底部按钮
         var btnGrid = new TableLayoutPanel
         {
             Dock        = DockStyle.Bottom,
-            Height      = 92,
+            Height      = 80,
             ColumnCount = 2,
             RowCount    = 2,
-            BackColor   = Color.Transparent,
-            Padding     = new Padding(0, 6, 0, 0),
+            BackColor   = Color.White,
+            Padding     = new Padding(8, 6, 8, 8),
             CellBorderStyle = TableLayoutPanelCellBorderStyle.None
         };
         btnGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
@@ -252,10 +244,17 @@ public class MainForm : Form
         btnGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
         btnGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
 
-        var btnNew    = MakeGridBtn("新建患者", ClrBtnBlue);
-        var btnDel    = MakeGridBtn("删除患者", ClrBtnRed);
-        var btnFolder = MakeGridBtn("打开目录", ClrBtnTeal);
-        var btnKb     = MakeGridBtn("知识库",   ClrBtnGray);
+        var btnNew    = AppleStyleHelper.CreatePrimaryButton("新建患者");
+        var btnDel    = AppleStyleHelper.CreateDangerButton("删除患者");
+        var btnFolder = AppleStyleHelper.CreateSecondaryButton("打开目录");
+        var btnKb     = AppleStyleHelper.CreateSecondaryButton("知识库");
+
+        foreach (var b in new[] { btnNew, btnDel, btnFolder, btnKb })
+        {
+            b.Dock   = DockStyle.Fill;
+            b.Height = 30;
+            b.Margin = new Padding(2);
+        }
 
         btnNew.Click    += BtnNewPatient_Click;
         btnDel.Click    += BtnDelete_Click;
@@ -267,14 +266,14 @@ public class MainForm : Form
         btnGrid.Controls.Add(btnFolder, 0, 1);
         btnGrid.Controls.Add(btnKb,     1, 1);
 
-        var bottom = new Panel { Dock = DockStyle.Bottom, Height = 4, BackColor = ClrBtnGreen };
+        card.Controls.Add(lstPatients);
+        card.Controls.Add(sep);
+        card.Controls.Add(chkShowDischarged);
+        card.Controls.Add(searchBar);
+        card.Controls.Add(titleBar);
+        card.Controls.Add(btnGrid);
 
-        panel.Controls.Add(lstPatients);
-        panel.Controls.Add(sep);
-        panel.Controls.Add(chkShowDischarged);
-        panel.Controls.Add(titleRow);
-        panel.Controls.Add(btnGrid);
-        panel.Controls.Add(bottom);
+        panel.Controls.Add(card);
         return panel;
     }
 
@@ -282,54 +281,48 @@ public class MainForm : Form
     {
         if (e.Index < 0 || e.Index >= lstPatients.Items.Count) return;
         var selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
-        var bg = selected
-            ? ClrBtnBlue
-            : e.Index % 2 == 0 ? Color.FromArgb(245, 251, 255) : Color.FromArgb(232, 244, 254);
+        var bg = selected ? AppleStyleHelper.SelectionBg : (e.Index % 2 == 0 ? Color.White : Color.FromArgb(250, 250, 252));
         e.Graphics.FillRectangle(new SolidBrush(bg), e.Bounds);
 
-        // 正确取患者姓名
         var patient = lstPatients.Items[e.Index] as Patient;
-        var text = patient?.Name ?? lstPatients.Items[e.Index]?.ToString() ?? "";
+        var name    = patient?.Name ?? lstPatients.Items[e.Index]?.ToString() ?? "";
+        var color   = selected ? AppleStyleHelper.PrimaryBlue : AppleStyleHelper.HeaderDark;
+        using var brush = new SolidBrush(color);
+        e.Graphics.DrawString(name, AppleStyleHelper.FontBody, brush, e.Bounds.X + 12, e.Bounds.Y + 5);
 
-        using var brush = new SolidBrush(selected ? Color.White : Color.FromArgb(30, 50, 80));
-        e.Graphics.DrawString(text, FontMain, brush, e.Bounds.X + 6, e.Bounds.Y + 5);
+        // 底部细线
+        using var pen = new Pen(Color.FromArgb(240, 240, 242));
+        e.Graphics.DrawLine(pen, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
     }
 
-    private static Button MakeGridBtn(string text, Color color)
-    {
-        var b = new Button
-        {
-            Text      = text,
-            Dock      = DockStyle.Fill,
-            BackColor = color,
-            ForeColor = Color.White,
-            FlatStyle = FlatStyle.Flat,
-            Font      = FontMain,
-            Margin    = new Padding(2)
-        };
-        b.FlatAppearance.BorderSize = 0;
-        return b;
-    }
-
-    // ── 工作区面板 ────────────────────────────────────────────
+    // ── 中栏：工作区 ──────────────────────────────────────────
 
     private Control BuildWorkPanel()
     {
-        var outer = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
+        var panel = new Panel
+        {
+            Dock      = DockStyle.Fill,
+            BackColor = AppleStyleHelper.BgGray,
+            Padding   = new Padding(6, 10, 6, 10)
+        };
+
+        var outer = AppleStyleHelper.CreateCard();
+        outer.Dock    = DockStyle.Fill;
+        outer.Padding = new Padding(0);
 
         // 患者信息栏
         var infoBar = new Panel
         {
             Dock      = DockStyle.Top,
-            Height    = 46,
-            BackColor = ClrInfoBar,
-            Padding   = new Padding(12, 0, 12, 0)
+            Height    = 44,
+            BackColor = Color.FromArgb(232, 240, 254),
+            Padding   = new Padding(14, 0, 14, 0)
         };
         lblPatientInfo = new Label
         {
             Dock      = DockStyle.Fill,
-            Font      = FontBold,
-            ForeColor = Color.FromArgb(20, 60, 110),
+            Font      = AppleStyleHelper.FontBold,
+            ForeColor = AppleStyleHelper.PrimaryBlue,
             TextAlign = ContentAlignment.MiddleLeft,
             Text      = "请从左侧选择或新建患者"
         };
@@ -338,7 +331,7 @@ public class MainForm : Form
         // 工具栏
         var toolbar = BuildToolbar();
 
-        // 历史记录占满其余空间
+        // 历史记录
         var histPanel = BuildHistoryPanel();
 
         // 状态栏
@@ -347,18 +340,20 @@ public class MainForm : Form
             Dock      = DockStyle.Bottom,
             Height    = 28,
             Text      = "就绪",
-            Font      = FontMain,
-            ForeColor = Color.FromArgb(80, 100, 120),
+            Font      = AppleStyleHelper.FontSmall,
+            ForeColor = AppleStyleHelper.DisabledGray,
             TextAlign = ContentAlignment.MiddleLeft,
-            Padding   = new Padding(12, 0, 0, 0),
-            BackColor = ClrStatusBar
+            Padding   = new Padding(14, 0, 0, 0),
+            BackColor = Color.FromArgb(250, 250, 252)
         };
 
         outer.Controls.Add(histPanel);
         outer.Controls.Add(lblStatus);
         outer.Controls.Add(toolbar);
         outer.Controls.Add(infoBar);
-        return outer;
+
+        panel.Controls.Add(outer);
+        return panel;
     }
 
     private Control BuildToolbar()
@@ -367,8 +362,8 @@ public class MainForm : Form
         {
             Dock      = DockStyle.Top,
             Height    = 52,
-            BackColor = Color.FromArgb(250, 253, 255),
-            Padding   = new Padding(8, 8, 8, 8)
+            BackColor = Color.White,
+            Padding   = new Padding(12, 9, 12, 9)
         };
 
         var flow = new FlowLayoutPanel
@@ -379,53 +374,39 @@ public class MainForm : Form
             BackColor     = Color.Transparent
         };
 
-        var btnFirst    = MakeToolBtn("患者档案",     ClrBtnBlue,   110);
-        var btnNew      = MakeToolBtn("新建病程记录", ClrBtnGreen,  120);
-        var btnBrowse   = MakeToolBtn("联合浏览",     ClrBtnTeal,   100);
-        var btnDischarge= MakeToolBtn("出院归档",     ClrBtnRed,    100);
+        var btnFirst     = AppleStyleHelper.CreateSecondaryButton("患者档案",     110);
+        var btnNew       = AppleStyleHelper.CreatePrimaryButton("新建病程记录",  130);
+        var btnBrowse    = AppleStyleHelper.CreateSecondaryButton("联合浏览",     100);
+        var btnDischarge = AppleStyleHelper.CreateDangerButton("出院归档",       100);
 
-        btnFirst.Click    += BtnGenerateProgress_Click;
-        btnNew.Click      += BtnNewProgressRecord_Click;
-        btnBrowse.Click   += BtnCombinedBrowse_Click;
-        btnDischarge.Click+= BtnDischarge_Click;
+        btnFirst.Click     += BtnGenerateProgress_Click;
+        btnNew.Click       += BtnNewProgressRecord_Click;
+        btnBrowse.Click    += BtnCombinedBrowse_Click;
+        btnDischarge.Click += BtnDischarge_Click;
 
         flow.Controls.AddRange(new Control[] { btnFirst, btnNew, btnBrowse, btnDischarge });
 
-        var sepLine = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = Color.FromArgb(200, 220, 235) };
-
+        var sep = new Panel { Dock = DockStyle.Bottom, Height = 1, BackColor = AppleStyleHelper.CardBorder };
         bar.Controls.Add(flow);
-        bar.Controls.Add(sepLine);
+        bar.Controls.Add(sep);
         return bar;
     }
 
-    private static Button MakeToolBtn(string text, Color color, int width)
-    {
-        var b = new Button
-        {
-            Text      = text,
-            Width     = width,
-            Height    = 34,
-            BackColor = color,
-            ForeColor = Color.White,
-            FlatStyle = FlatStyle.Flat,
-            Font      = FontMain,
-            Margin    = new Padding(0, 0, 8, 0)
-        };
-        b.FlatAppearance.BorderSize = 0;
-        return b;
-    }
-
-    // 历史记录面板（全高）
     private Control BuildHistoryPanel()
     {
-        var panel = new Panel { Dock = DockStyle.Fill, BackColor = ClrPanelGreen, Padding = new Padding(8, 4, 8, 4) };
+        var panel = new Panel
+        {
+            Dock      = DockStyle.Fill,
+            BackColor = Color.White,
+            Padding   = new Padding(12, 6, 12, 6)
+        };
 
         var titleBar = new Panel { Dock = DockStyle.Top, Height = 30, BackColor = Color.Transparent };
         titleBar.Controls.Add(new Label
         {
             Text      = "病程历史记录（双击编辑）",
-            Font      = FontBold,
-            ForeColor = Color.FromArgb(20, 100, 50),
+            Font      = AppleStyleHelper.FontBold,
+            ForeColor = AppleStyleHelper.HeaderDark,
             Dock      = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft
         });
@@ -437,18 +418,18 @@ public class MainForm : Form
             FullRowSelect = true,
             GridLines     = false,
             MultiSelect   = true,
-            Font          = FontMain,
+            Font          = AppleStyleHelper.FontBody,
             BorderStyle   = BorderStyle.None,
-            BackColor     = Color.FromArgb(244, 252, 246),
+            BackColor     = Color.White
         };
         lvProgressHistory.Columns.Add("日期",   160);
-        lvProgressHistory.Columns.Add("类型",   160);
-        lvProgressHistory.Columns.Add("摘要",   800);
+        lvProgressHistory.Columns.Add("类型",   140);
+        lvProgressHistory.Columns.Add("摘要",   700);
         lvProgressHistory.DoubleClick += LvProgressHistory_DoubleClick;
 
         // 右键菜单
-        var ctxMenu = new ContextMenuStrip { Font = FontMain };
-        var ctxDelete = new ToolStripMenuItem("删除选中记录") { ForeColor = ClrBtnRed };
+        var ctxMenu   = new ContextMenuStrip { Font = AppleStyleHelper.FontBody };
+        var ctxDelete = new ToolStripMenuItem("删除选中记录") { ForeColor = AppleStyleHelper.DangerRed };
         ctxDelete.Click += BtnDeleteSelectedRecords_Click;
         ctxMenu.Items.Add(ctxDelete);
         lvProgressHistory.ContextMenuStrip = ctxMenu;
@@ -456,6 +437,93 @@ public class MainForm : Form
         panel.Controls.Add(lvProgressHistory);
         panel.Controls.Add(titleBar);
         return panel;
+    }
+
+    // ── 右栏：知识卡片推荐 ────────────────────────────────────
+
+    private Control BuildKnowledgePanel()
+    {
+        var panel = new Panel
+        {
+            Dock      = DockStyle.Fill,
+            BackColor = AppleStyleHelper.BgGray,
+            Padding   = new Padding(6, 10, 10, 10)
+        };
+
+        var card = AppleStyleHelper.CreateCard();
+        card.Dock    = DockStyle.Fill;
+        card.Padding = new Padding(0);
+
+        var titleBar = new Panel { Dock = DockStyle.Top, Height = 40, BackColor = Color.White, Padding = new Padding(12, 8, 8, 0) };
+        var lblTitle = AppleStyleHelper.CreateTitle("相关知识");
+        lblTitle.Dock      = DockStyle.Left;
+        lblTitle.TextAlign = ContentAlignment.MiddleLeft;
+        lblTitle.Width     = 120;
+        titleBar.Controls.Add(lblTitle);
+
+        lblKnowledgeStatus = AppleStyleHelper.CreateLabel("选择患者后自动推荐");
+        lblKnowledgeStatus.Dock      = DockStyle.Top;
+        lblKnowledgeStatus.Height    = 24;
+        lblKnowledgeStatus.TextAlign = ContentAlignment.MiddleLeft;
+        lblKnowledgeStatus.Padding   = new Padding(12, 4, 0, 0);
+        lblKnowledgeStatus.BackColor = Color.White;
+
+        lstKnowledge = new ListBox
+        {
+            Dock           = DockStyle.Fill,
+            Font           = AppleStyleHelper.FontSmall,
+            IntegralHeight = false,
+            BorderStyle    = BorderStyle.None,
+            BackColor      = Color.White,
+            ItemHeight     = 52,
+            DrawMode       = DrawMode.OwnerDrawFixed
+        };
+        lstKnowledge.DrawItem  += LstKnowledge_DrawItem;
+        lstKnowledge.DoubleClick += LstKnowledge_DoubleClick;
+
+        var sep = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = AppleStyleHelper.CardBorder };
+
+        card.Controls.Add(lstKnowledge);
+        card.Controls.Add(sep);
+        card.Controls.Add(lblKnowledgeStatus);
+        card.Controls.Add(titleBar);
+
+        panel.Controls.Add(card);
+        return panel;
+    }
+
+    private void LstKnowledge_DrawItem(object? sender, DrawItemEventArgs e)
+    {
+        if (e.Index < 0 || e.Index >= lstKnowledge.Items.Count) return;
+        var selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+        e.Graphics.FillRectangle(new SolidBrush(selected ? AppleStyleHelper.SelectionBg : Color.White), e.Bounds);
+
+        if (lstKnowledge.Items[e.Index] is not KnowledgeTemplate tpl) return;
+
+        var x = e.Bounds.X + 10;
+        var y = e.Bounds.Y + 4;
+        var w = e.Bounds.Width - 14;
+
+        using var titleFont   = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+        using var previewFont = new Font("Segoe UI", 8.5f);
+
+        e.Graphics.DrawString(tpl.Title.Length > 22 ? tpl.Title[..22] + "…" : tpl.Title,
+            titleFont, new SolidBrush(AppleStyleHelper.PrimaryBlue),
+            new RectangleF(x, y, w, 20));
+
+        var preview = (tpl.Summary.Length > 0 ? tpl.Summary : tpl.Content).Replace("\n", " ");
+        if (preview.Length > 60) preview = preview[..60] + "…";
+        e.Graphics.DrawString(preview, previewFont, new SolidBrush(Color.FromArgb(90, 90, 100)),
+            new RectangleF(x, y + 22, w, 22));
+
+        using var pen = new Pen(Color.FromArgb(240, 240, 242));
+        e.Graphics.DrawLine(pen, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
+    }
+
+    private void LstKnowledge_DoubleClick(object? sender, EventArgs e)
+    {
+        // 双击知识卡片：打开知识库并定位到该条
+        new KnowledgeBaseForm().ShowDialog(this);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -466,19 +534,31 @@ public class MainForm : Form
     {
         try
         {
-            var patients = await _databaseService.GetAllPatientsAsync();
+            _allPatients = await _databaseService.GetAllPatientsAsync();
             if (!chkShowDischarged.Checked)
-                patients = patients.Where(p => !p.IsDischarged).ToList();
-
-            lstPatients.DataSource    = null;
-            lstPatients.DisplayMember = nameof(Patient.Name);
-            lstPatients.DataSource    = patients;
-            lblPatientCount.Text      = $"({patients.Count})";
+                _allPatients = _allPatients.Where(p => !p.IsDischarged).ToList();
+            ApplyPatientFilter();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"加载患者失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private void ApplyPatientFilter()
+    {
+        var search = txtSearch?.Text.Trim() ?? "";
+        var list = string.IsNullOrWhiteSpace(search)
+            ? _allPatients
+            : _allPatients.Where(p =>
+                p.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (p.MedicalRecordNumber?.Contains(search) ?? false) ||
+                (p.BedNumber?.Contains(search) ?? false)).ToList();
+
+        lstPatients.DataSource    = null;
+        lstPatients.DisplayMember = nameof(Patient.Name);
+        lstPatients.DataSource    = list;
+        lblPatientCount.Text      = $"({list.Count})";
     }
 
     private async void SelectCurrentPatient()
@@ -492,7 +572,32 @@ public class MainForm : Form
 
         _currentProgressRecords = await _databaseService.GetPatientProgressRecordsAsync(patient.Id);
         LoadProgressHistory();
-        SetStatus("已选择患者，可生成或新建病程记录", ClrBtnBlue);
+        SetStatus("已选择患者，可生成或新建病程记录", AppleStyleHelper.PrimaryBlue);
+
+        // 异步加载知识卡片推荐
+        _ = LoadKnowledgeRecommendationsAsync(patient);
+    }
+
+    private async Task LoadKnowledgeRecommendationsAsync(Patient patient)
+    {
+        try
+        {
+            lblKnowledgeStatus.Text = "正在匹配知识卡片…";
+            var ctx = $"{patient.Diagnosis} {patient.ChiefComplaint} {patient.PhysicalExam}";
+            var matched = await _matchService.MatchAsync(ctx, topN: 8);
+
+            lstKnowledge.Items.Clear();
+            foreach (var tpl in matched)
+                lstKnowledge.Items.Add(tpl);
+
+            lblKnowledgeStatus.Text = matched.Count > 0
+                ? $"匹配到 {matched.Count} 条相关知识"
+                : "暂无匹配知识（知识库可能为空）";
+        }
+        catch
+        {
+            lblKnowledgeStatus.Text = "推荐失败";
+        }
     }
 
     private void LoadProgressHistory()
@@ -505,7 +610,7 @@ public class MainForm : Form
             item.SubItems.Add(record.GetShortSummary().Replace("\r", " ").Replace("\n", " "));
             item.Tag = record;
             if (record.HasDuplicate)
-                item.ForeColor = Color.FromArgb(180, 40, 40);
+                item.ForeColor = AppleStyleHelper.DangerRed;
             lvProgressHistory.Items.Add(item);
         }
     }
@@ -513,7 +618,7 @@ public class MainForm : Form
     private void SetStatus(string text, Color? color = null)
     {
         lblStatus.Text      = text;
-        lblStatus.ForeColor = color ?? Color.FromArgb(80, 100, 120);
+        lblStatus.ForeColor = color ?? AppleStyleHelper.DisabledGray;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -554,7 +659,9 @@ public class MainForm : Form
         _currentPatient = null;
         _currentProgressRecords.Clear();
         lvProgressHistory.Items.Clear();
-        lblPatientInfo.Text = "请从左侧选择或新建患者";
+        lstKnowledge.Items.Clear();
+        lblPatientInfo.Text     = "请从左侧选择或新建患者";
+        lblKnowledgeStatus.Text = "选择患者后自动推荐";
         SetStatus("就绪");
         LoadPatients();
     }
@@ -576,7 +683,7 @@ public class MainForm : Form
         lblPatientInfo.Text = $"患者：{form.Patient.Name}    {form.Patient.Gender}，{form.Patient.Age} 岁    " +
                               $"住院号：{form.Patient.MedicalRecordNumber}    诊断：{form.Patient.Diagnosis}";
         LoadPatients();
-        SetStatus("患者档案已更新", ClrBtnGreen);
+        SetStatus("患者档案已更新", AppleStyleHelper.PrimaryBlue);
     }
 
     private async void BtnNewProgressRecord_Click(object? sender, EventArgs e)
@@ -597,7 +704,7 @@ public class MainForm : Form
         await _folderService.SaveProgressRecordAsync(_currentPatient, record);
         LoadProgressHistory();
         SetStatus(record.HasDuplicate ? "新病程已保存，重复内容已标红" : "新病程已保存",
-            record.HasDuplicate ? ClrBtnRed : ClrBtnGreen);
+            record.HasDuplicate ? AppleStyleHelper.DangerRed : AppleStyleHelper.PrimaryBlue);
     }
 
     private async void LvProgressHistory_DoubleClick(object? sender, EventArgs e)
@@ -615,7 +722,7 @@ public class MainForm : Form
         if (idx >= 0) _currentProgressRecords[idx] = form.Record;
 
         LoadProgressHistory();
-        SetStatus("病程修改已保存", ClrBtnGreen);
+        SetStatus("病程修改已保存", AppleStyleHelper.PrimaryBlue);
     }
 
     private async void BtnDischarge_Click(object? sender, EventArgs e)
@@ -670,58 +777,7 @@ public class MainForm : Form
         }
 
         LoadProgressHistory();
-        SetStatus($"已删除 {toDelete.Count} 条病程记录", ClrBtnRed);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  首次病程录生成
-    // ═══════════════════════════════════════════════════════════
-
-    private string BuildInitialProgressRecordText(Patient patient)
-    {
-        var diagnosis    = EmptyAsPending(patient.Diagnosis);
-        var chiefComplaint = EmptyAsPending(patient.ChiefComplaint);
-        var history      = EmptyAsPending(patient.History);
-        var physicalExam = EmptyAsPending(patient.PhysicalExam,
-            "待补充生命体征、专科查体及康复功能评定。若无新查体，请补充首程查体。 ");
-        var auxiliaryExam = string.IsNullOrWhiteSpace(patient.AuxiliaryExam) ? "暂无。" : patient.AuxiliaryExam.Trim();
-        var treatmentPlan = EmptyAsPending(patient.TreatmentPlan,
-            "完善相关检查，结合病情予以综合康复治疗，动态评估功能恢复及安全风险。");
-
-        return $"""
-{DateTime.Now:yyyy-MM-dd HH:mm}  首次病程记录
-
-一、病例特点：
-1. 主诉：{chiefComplaint}
-
-2. 现病史：
-{history}
-
-3. 查体及专科情况：
-{physicalExam}
-
-4. 辅助检查：
-{auxiliaryExam}
-
-二、诊断及鉴别诊断：
-1. 初步诊断：
-{diagnosis}
-
-2. 诊断依据：
-（1）病史：患者因"{chiefComplaint}"入院。
-（2）查体：{SummarizeForSentence(physicalExam)}
-（3）辅助检查：{SummarizeForSentence(auxiliaryExam)}
-（4）结合患者病史、查体及辅助检查，目前诊断如上。
-
-3. 鉴别诊断：
-需结合起病形式、神经系统查体、影像学及实验室检查，与相关神经系统疾病、骨关节疾病及其他可导致功能障碍的疾病相鉴别。
-
-三、诊疗计划：
-1. 完善血常规、尿常规、肝肾功能、电解质、凝血功能、心电图及影像学等相关检查。
-2. 完善康复评定，包括肌力、肌张力、Brunnstrom分期、改良Ashworth评分、平衡、步态、ADL、吞咽、言语及认知等功能评定。
-3. 治疗计划：{treatmentPlan}
-4. 动态观察病情变化、治疗耐受情况及康复疗效，必要时调整康复治疗强度和医嘱。
-""";
+        SetStatus($"已删除 {toDelete.Count} 条病程记录", AppleStyleHelper.DangerRed);
     }
 
     // ═══════════════════════════════════════════════════════════

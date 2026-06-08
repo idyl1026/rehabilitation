@@ -8,6 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <StartupObject>MedicalProgress.App.Program</StartupObject>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyTitle>病程助手</AssemblyTitle>
+    <Product>病程助手</Product>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MedicalProgress.App.Data;
+using MedicalProgress.App.Helpers;
 using MedicalProgress.App.Models;
 using MedicalProgress.App.Services;
 
@@ -103,10 +104,17 @@ public class KnowledgeBaseForm : Form
         btnExportSample.Click += BtnExportSample_Click;
         var btnRefresh = CreateButton("刷新", Color.FromArgb(108, 117, 125), 80);
         btnRefresh.Click += (_, _) => LoadSubjects();
+        var btnExtractBook = AppleStyleHelper.CreatePrimaryButton("📖 提取知识点", 120);
+        btnExtractBook.Click += (_, _) =>
+        {
+            var subjectId = _currentSubject?.Id ?? 0;
+            new BookTextExtractForm(subjectId).ShowDialog(this);
+            _ = LoadTemplatesAsync();
+        };
         buttonRow.Controls.AddRange(new Control[]
         {
             btnNewTemplate, btnEditTemplate, btnDeleteTemplate,
-            btnImportTemplates, btnExportSample, btnRefresh
+            btnImportTemplates, btnExportSample, btnRefresh, btnExtractBook
         });
 
         top.Controls.Add(selectorRow, 0, 0);
