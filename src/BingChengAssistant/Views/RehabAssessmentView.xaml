@@ -87,7 +87,7 @@
                         <StackPanel Visibility="{Binding IsMmt, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="肌群名称" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                             <TextBox Style="{StaticResource InputBox}" Text="{Binding MmtMuscle}" Margin="0,0,0,12"
-                                     PlaceholderText="如：股四头肌（左）"/>
+                                    />
                             <TextBlock Text="肌力等级（0-5级）" Style="{StaticResource FieldLabel}" Margin="0,0,0,8"/>
                             <Slider Minimum="0" Maximum="5" TickFrequency="1" IsSnapToTickEnabled="True"
                                     Value="{Binding MmtGrade}" TickPlacement="BottomRight" Margin="0,0,0,8"/>
@@ -106,11 +106,11 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" Margin="0,0,6,0">
                                     <TextBlock Text="关节名称" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding RomJoint}" PlaceholderText="如：膝关节（左）"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding RomJoint}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Margin="6,0,0,0">
                                     <TextBlock Text="运动方向" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding RomDirection}" PlaceholderText="如：屈曲"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding RomDirection}"/>
                                 </StackPanel>
                             </Grid>
                             <Grid Margin="0,0,0,10">
@@ -128,7 +128,7 @@
                                 </StackPanel>
                             </Grid>
                             <TextBlock Text="疼痛情况" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                            <TextBox Style="{StaticResource InputBox}" Text="{Binding RomPain}" Margin="0,0,0,10" PlaceholderText="如：末端疼痛"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding RomPain}" Margin="0,0,0,10"/>
                             <TextBlock Text="备注" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                             <TextBox Style="{StaticResource InputBox}" Text="{Binding RomRemark}" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
                         </StackPanel>
