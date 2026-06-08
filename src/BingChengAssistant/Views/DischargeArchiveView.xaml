@@ -203,7 +203,7 @@
                         Width="80" Margin="0,0,12,0" IsCancel="True"/>
                 <Button Content="生成Word并归档" Style="{StaticResource PrimaryButton}"
                         Height="44" Padding="24,0" FontSize="14"
-                        Command="{Binding ArchiveCommand}" Click="ArchiveButton_Click"/>
+                        Command="{Binding ArchiveCommand}"/>
             </StackPanel>
         </Border>
     </Grid>

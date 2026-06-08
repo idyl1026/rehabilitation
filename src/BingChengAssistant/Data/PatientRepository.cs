@@ -197,6 +197,34 @@ ORDER BY a.admission_date DESC
         return list;
     }
 
+    public void DeleteAdmission(int admissionId)
+    {
+        using var c = DbConnectionFactory.Create();
+        // 删除关联数据
+        // 先删子表（rehab_assessment_results 依赖 rehab_assessment_records）
+        using var preCmd = c.CreateCommand();
+        preCmd.CommandText = "DELETE FROM rehab_assessment_results WHERE record_id IN (SELECT id FROM rehab_assessment_records WHERE admission_id=@id)";
+        preCmd.Parameters.AddWithValue("@id", admissionId);
+        preCmd.ExecuteNonQuery();
+
+        foreach (var sql in new[]
+        {
+            "DELETE FROM progress_notes WHERE admission_id=@id",
+            "DELETE FROM rehab_assessment_records WHERE admission_id=@id",
+            "DELETE FROM patient_word_docs WHERE admission_id=@id",
+            "DELETE FROM patient_insurance_info WHERE admission_id=@id",
+            "DELETE FROM doctor_patient_map WHERE admission_id=@id",
+            "DELETE FROM research_case_index WHERE admission_id=@id",
+            "DELETE FROM admissions WHERE id=@id",
+        })
+        {
+            using var cmd = c.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.Parameters.AddWithValue("@id", admissionId);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
     private static Patient MapPatient(SqliteDataReader r) => new()
     {
         Id = r.GetInt32(r.GetOrdinal("id")),

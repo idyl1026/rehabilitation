@@ -67,6 +67,20 @@ public partial class MainWorkbenchView : System.Windows.Window
             if (Directory.Exists(dir))
                 Process.Start(new ProcessStartInfo(dir) { UseShellExecute = true });
         };
+
+        _vm.ConfirmDeleteAdmission = (adm) =>
+        {
+            var result = System.Windows.MessageBox.Show(
+                $"确认删除患者【{adm.Patient?.Name}】的全部住院记录？\n\n此操作不可恢复，将同时删除病程记录、康复评估等所有数据。",
+                "删除确认", System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning);
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                new PatientRepository().DeleteAdmission(adm.Id);
+                _vm.SelectedAdmission = null;
+                _vm.LoadAdmissions();
+            }
+        };
     }
 
     private void StatusFilter_Checked(object sender, System.Windows.RoutedEventArgs e)

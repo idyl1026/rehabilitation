@@ -18,7 +18,15 @@ public class ProgressNoteEditViewModel : BaseViewModel
     public string[] NoteTypes { get; } = { "首次病程", "日常病程", "上级查房", "康复评估", "出院前" };
 
     public Admission? Admission { get => _admission; set { SetField(ref _admission, value); } }
-    public string NoteType { get => _noteType; set => SetField(ref _noteType, value); }
+    public string NoteType
+    {
+        get => _noteType;
+        set
+        {
+            SetField(ref _noteType, value);
+            LoadTemplates();
+        }
+    }
     public string Content { get => _content; set => SetField(ref _content, value); }
     public NoteTemplate? SelectedTemplate
     {
@@ -49,8 +57,12 @@ public class ProgressNoteEditViewModel : BaseViewModel
     {
         Templates.Clear();
         var repo = new TemplateRepository();
-        foreach (var t in repo.GetAll())
-            Templates.Add(t);
+        var list = string.IsNullOrEmpty(_noteType)
+            ? repo.GetAll()
+            : repo.GetByType(_noteType);
+        // 如果该类型没有模板，回退到全部
+        if (list.Count == 0) list = repo.GetAll();
+        foreach (var t in list) Templates.Add(t);
     }
 
     private void Save()

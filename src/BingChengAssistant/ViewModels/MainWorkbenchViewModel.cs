@@ -56,6 +56,8 @@ public class MainWorkbenchViewModel : BaseViewModel
     public Action<Admission>? OpenWordFile { get; set; }
     public Action<Admission>? OpenPatientDir { get; set; }
 
+    public Action<Admission>? ConfirmDeleteAdmission { get; set; }
+
     private RelayCommand? _newPatientCommand;
     private RelayCommand? _newNoteCommand;
     private RelayCommand? _editPatientCommand;
@@ -63,6 +65,7 @@ public class MainWorkbenchViewModel : BaseViewModel
     private RelayCommand? _dischargeCommand;
     private RelayCommand? _openWordCommand;
     private RelayCommand? _openDirCommand;
+    private RelayCommand? _deletePatientCommand;
 
     public RelayCommand NewPatientCommand => _newPatientCommand ??= new(() => OpenNewPatient?.Invoke());
     public RelayCommand NewNoteCommand => _newNoteCommand ??= new(() => { if (SelectedAdmission != null) OpenNewNote?.Invoke(SelectedAdmission); });
@@ -71,6 +74,7 @@ public class MainWorkbenchViewModel : BaseViewModel
     public RelayCommand DischargeCommand => _dischargeCommand ??= new(() => { if (SelectedAdmission != null) OpenDischarge?.Invoke(SelectedAdmission); });
     public RelayCommand OpenWordCommand => _openWordCommand ??= new(() => { if (SelectedAdmission != null) OpenWordFile?.Invoke(SelectedAdmission); });
     public RelayCommand OpenDirCommand => _openDirCommand ??= new(() => { if (SelectedAdmission != null) OpenPatientDir?.Invoke(SelectedAdmission); });
+    public RelayCommand DeletePatientCommand => _deletePatientCommand ??= new(() => { if (SelectedAdmission != null) ConfirmDeleteAdmission?.Invoke(SelectedAdmission); });
 
     public MainWorkbenchViewModel()
     {

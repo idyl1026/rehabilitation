@@ -190,7 +190,7 @@
                 <Button Content="取消" Style="{StaticResource SecondaryButton}"
                         Width="80" Margin="0,0,10,0" IsCancel="True"/>
                 <Button Content="保存档案" Style="{StaticResource PrimaryButton}" Width="120"
-                        Command="{Binding SaveCommand}" Click="SaveButton_Click"/>
+                        Command="{Binding SaveCommand}"/>
             </StackPanel>
         </Border>
     </Grid>
