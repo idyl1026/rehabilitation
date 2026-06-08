@@ -64,7 +64,7 @@ public class BookTextExtractForm : Form
         };
         lblStatus = new Label
         {
-            Text      = "请粘贴教材原文，然后点击"提取核心知识点"",
+            Text      = "请粘贴教材原文，然后点击【提取核心知识点】",
             Font      = AppleStyleHelper.FontBody,
             ForeColor = AppleStyleHelper.DisabledGray,
             AutoSize  = false,
