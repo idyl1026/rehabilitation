@@ -1,0 +1,62 @@
+<Window x:Class="BingChengAssistant.Views.LoginView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:BingChengAssistant.ViewModels"
+        Title="病程助手 v1.2 — 医生登录"
+        Width="420" Height="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Style="{StaticResource BaseWindow}">
+
+    <Window.DataContext>
+        <vm:LoginViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题栏 -->
+        <Border Grid.Row="0" Style="{StaticResource HeaderPanel}">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="🏥 病程助手 v1.2" Foreground="White" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="内网单机版 · 病程辅助写作系统" Foreground="#A8C4E0" FontSize="11"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 登录表单 -->
+        <StackPanel Grid.Row="1" Margin="40,32,40,32" VerticalAlignment="Center">
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="选择医生" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                    <ComboBox Style="{StaticResource ComboBoxStyle}"
+                              ItemsSource="{Binding Doctors}"
+                              SelectedItem="{Binding SelectedDoctor}"
+                              DisplayMemberPath="DisplayName"
+                              Margin="0,0,0,16"/>
+
+                    <TextBlock Text="登录PIN（如已设置）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                    <PasswordBox x:Name="PinBox" Margin="0,0,0,8" Padding="8,6"
+                                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                 FontSize="13" KeyDown="PinBox_KeyDown"/>
+
+                    <!-- 错误信息 -->
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
+                               FontSize="12" Margin="0,4,0,0"
+                               Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+
+            <Button Content="登 录" Style="{StaticResource PrimaryButton}"
+                    Height="42" Margin="0,16,0,0" FontSize="14"
+                    Click="LoginButton_Click"/>
+
+            <Button Content="新增医生" Style="{StaticResource SecondaryButton}"
+                    Height="36" Margin="0,8,0,0"
+                    Command="{Binding AddDoctorCommand}"
+                    Click="AddDoctorButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

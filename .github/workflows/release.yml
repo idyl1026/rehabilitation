@@ -10,7 +10,8 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-v12:
+    name: Build BingChengAssistant v1.2 (WPF)
     runs-on: windows-latest
 
     steps:
@@ -23,46 +24,50 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore NuGet packages
-        run: dotnet restore src/MedicalProgress.App/MedicalProgress.App.csproj -r win-x64
+        run: dotnet restore src/BingChengAssistant/BingChengAssistant.csproj -r win-x64
 
       - name: Build (check for errors)
-        run: dotnet build src/MedicalProgress.App/MedicalProgress.App.csproj -c Release -r win-x64 --no-restore
+        run: dotnet build src/BingChengAssistant/BingChengAssistant.csproj -c Release -r win-x64 --no-restore
 
       - name: Publish single-file exe
         run: >
-          dotnet publish src/MedicalProgress.App/MedicalProgress.App.csproj
+          dotnet publish src/BingChengAssistant/BingChengAssistant.csproj
           -c Release
           -r win-x64
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
           --no-restore
-          -o publish_output
+          -o publish_v12
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MedicalProgress-v1.0-win-x64
-          path: publish_output/MedicalProgress.App.exe
+          name: 病程助手-v1.2-win-x64
+          path: publish_v12/BingChengAssistant.exe
           retention-days: 30
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: publish_output/MedicalProgress.App.exe
+          files: publish_v12/BingChengAssistant.exe
           name: "病程助手 ${{ github.ref_name }}"
           body: |
             ## 病程助手 ${{ github.ref_name }}
 
-            ### 新功能
-            - 📖 从教材提取知识点（规则过滤，去除废话句）
-            - 🔍 写病程时自动匹配相关知识卡片（BM25检索）
-            - 🍎 全新 Mac 风格界面
+            ### v1.2 新特性
+            - 🏥 医生登录/注册系统
+            - 👤 患者管理（自动创建 Word 病例文档）
+            - ✏ 病程记录（4大模板，一键复制到电子病历）
+            - 🩺 康复评估（VAS/NRS/ROM/MMT）
+            - 🏠 出院归档（汇总 Word + 科研索引 Excel）
+            - 💊 WPF 深蓝医疗主题界面
 
             ### 使用方法
-            下载 `MedicalProgress.App.exe`，双击运行，无需安装任何依赖。
+            下载 `BingChengAssistant.exe`，双击运行，无需安装任何依赖。
 
             ### 系统要求
             - Windows 10 / 11（64位）
             - 约 150MB 磁盘空间
+            - 不需要联网，内网可用

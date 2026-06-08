@@ -1,0 +1,98 @@
+using System.Collections.ObjectModel;
+using System.Windows;
+using BingChengAssistant.Data;
+using BingChengAssistant.Models;
+using BingChengAssistant.Services;
+
+namespace BingChengAssistant.ViewModels;
+
+public class ProgressNoteEditViewModel : BaseViewModel
+{
+    private string _noteType = "日常病程";
+    private string _content = "";
+    private NoteTemplate? _selectedTemplate;
+    private Admission? _admission;
+
+    public ObservableCollection<NoteTemplate> Templates { get; } = new();
+    public string[] NoteTypes { get; } = { "首次病程", "日常病程", "上级查房", "康复评估", "出院前" };
+
+    public Admission? Admission { get => _admission; set { SetField(ref _admission, value); } }
+    public string NoteType { get => _noteType; set => SetField(ref _noteType, value); }
+    public string Content { get => _content; set => SetField(ref _content, value); }
+    public NoteTemplate? SelectedTemplate
+    {
+        get => _selectedTemplate;
+        set
+        {
+            SetField(ref _selectedTemplate, value);
+            if (value != null && Admission != null)
+                Content = TemplateRenderService.Render(value.Content, Admission);
+        }
+    }
+
+    public Action? OnSaved { get; set; }
+
+    public RelayCommand SaveCommand => new(Save);
+    public RelayCommand CopyCommand => new(CopyToClipboard);
+    public RelayCommand SyncWordCommand => new(SyncWord);
+
+    public ProgressNoteEditViewModel()
+    {
+        LoadTemplates();
+    }
+
+    private void LoadTemplates()
+    {
+        Templates.Clear();
+        var repo = new TemplateRepository();
+        foreach (var t in repo.GetAll())
+            Templates.Add(t);
+    }
+
+    private void Save()
+    {
+        if (string.IsNullOrWhiteSpace(Content)) return;
+        var note = new ProgressNote
+        {
+            AdmissionId = Admission!.Id,
+            DoctorId = AppContextService.CurrentDoctor!.Id,
+            NoteType = NoteType,
+            Content = Content,
+            RecordDate = DateTime.Now,
+        };
+        var repo = new ProgressNoteRepository();
+        int id = repo.Insert(note);
+        note.Id = id;
+
+        ResearchIndexService.Update(Admission.Id);
+        OperationLogService.Log("保存病程", $"{Admission.Patient?.Name} - {NoteType}");
+        OnSaved?.Invoke();
+    }
+
+    private void CopyToClipboard()
+    {
+        if (!string.IsNullOrEmpty(Content))
+        {
+            Clipboard.SetText(Content);
+        }
+    }
+
+    private void SyncWord()
+    {
+        if (string.IsNullOrWhiteSpace(Content) || Admission == null) return;
+        var wordRepo = new WordDocRepository();
+        var doc = wordRepo.GetByAdmission(Admission.Id);
+        if (doc == null || !File.Exists(doc.FilePath)) return;
+
+        var note = new ProgressNote
+        {
+            AdmissionId = Admission.Id,
+            NoteType = NoteType,
+            Content = Content,
+            RecordDate = DateTime.Now,
+        };
+        WordDocumentService.AppendProgressNote(doc.FilePath, note);
+        wordRepo.UpdateSyncTime(doc.Id);
+        OperationLogService.Log("同步Word", Admission.Patient?.Name);
+    }
+}
