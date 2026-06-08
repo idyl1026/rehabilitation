@@ -36,19 +36,10 @@ public class KnowledgeBaseForm : Form
         Text = "知识库管理";
         Size = new Size(1180, 820);
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Color.FromArgb(245, 247, 250);
+        BackColor = MedStyleHelper.ContentBg;
         MinimumSize = new Size(1050, 720);
 
-        var header = new Label
-        {
-            Dock = DockStyle.Top,
-            Height = 58,
-            Text = "知识库管理",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Microsoft YaHei UI", 16, FontStyle.Bold),
-            BackColor = Color.FromArgb(0, 123, 215),
-            ForeColor = Color.White
-        };
+        var header = MedStyleHelper.CreateHeader("知识库管理");
 
         var top = new TableLayoutPanel
         {
@@ -104,7 +95,7 @@ public class KnowledgeBaseForm : Form
         btnExportSample.Click += BtnExportSample_Click;
         var btnRefresh = CreateButton("刷新", Color.FromArgb(108, 117, 125), 80);
         btnRefresh.Click += (_, _) => LoadSubjects();
-        var btnExtractBook = AppleStyleHelper.CreatePrimaryButton("📖 提取知识点", 120);
+        var btnExtractBook = MedStyleHelper.CreatePrimaryButton("📖 提取知识点", 120);
         btnExtractBook.Click += (_, _) =>
         {
             var subjectId = _currentSubject?.Id ?? 0;

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using MedicalProgress.App.Helpers;
 using MedicalProgress.App.Models;
 using MedicalProgress.App.Services;
 
@@ -38,64 +39,65 @@ public class ImportReviewForm : Form
 
     private void InitializeComponent()
     {
-        Text = "Import and review clinical documents";
-        Size = new Size(1180, 760);
+        Text = "检查资料导入与解析";
+        Size = new Size(1300, 820);
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Color.FromArgb(245, 247, 250);
+        BackColor = MedStyleHelper.ContentBg;
         MinimizeBox = false;
+
+        var patientName = _patient == null ? "未选择患者" : $"{_patient.Name} / {_patient.MedicalRecordNumber}";
+        var header = MedStyleHelper.CreateHeader("检查资料导入与解析", patientName);
 
         var topPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 88,
+            Height = 52,
             BackColor = Color.White,
-            Padding = new Padding(12)
+            Padding   = new Padding(10, 8, 10, 8)
         };
 
-        var patientName = _patient == null ? "No patient selected" : $"{_patient.Name} / {_patient.MedicalRecordNumber}";
         var lblTitle = new Label
         {
-            Text = $"Document import review - {patientName}",
+            Text = $"患者：{patientName}",
             Dock = DockStyle.Top,
-            Height = 28,
-            Font = new Font("Microsoft YaHei UI", 11, FontStyle.Bold),
-            ForeColor = Color.FromArgb(35, 35, 35)
+            Height = 0,
+            Visible = false
         };
 
         var buttonPanel = new FlowLayoutPanel
         {
-            Dock = DockStyle.Fill,
+            Dock          = DockStyle.Fill,
             FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false,
-            Padding = new Padding(0, 8, 0, 0)
+            WrapContents  = false,
+            BackColor     = Color.Transparent
         };
 
-        btnPaste = CreateButton("Paste text", Color.FromArgb(0, 123, 215));
+        btnPaste = MedStyleHelper.CreateSecondaryBtn("粘贴文本", 90);
         btnPaste.Click += BtnPaste_Click;
 
-        btnOpenFile = CreateButton("Open file", Color.FromArgb(40, 167, 69));
+        btnOpenFile = MedStyleHelper.CreateSecondaryBtn("打开文件", 90);
         btnOpenFile.Click += BtnOpenFile_Click;
 
-        btnAnalyze = CreateButton("Generate analysis", Color.FromArgb(111, 66, 193));
+        btnAnalyze = MedStyleHelper.CreatePrimaryBtn("生成分析", 100);
         btnAnalyze.Enabled = false;
         btnAnalyze.Click += BtnAnalyze_Click;
 
-        btnSave = CreateButton("Save reviewed data", Color.FromArgb(108, 117, 125));
+        btnSave = MedStyleHelper.CreateSuccessBtn("保存到档案", 110);
         btnSave.Enabled = false;
         btnSave.Click += BtnSave_Click;
 
-        btnClose = CreateButton("Close", Color.FromArgb(90, 90, 90));
+        btnClose = MedStyleHelper.CreateSecondaryBtn("关闭", 80);
         btnClose.Click += (_, _) => Close();
 
         lblStatus = new Label
         {
-            AutoSize = false,
-            Width = 450,
-            Height = 36,
+            AutoSize  = false,
+            Width     = 400,
+            Height    = 32,
             TextAlign = ContentAlignment.MiddleLeft,
-            Font = new Font("Microsoft YaHei UI", 9),
-            ForeColor = Color.FromArgb(80, 80, 80),
-            Margin = new Padding(12, 3, 0, 0)
+            Font      = MedStyleHelper.FontSmall,
+            ForeColor = MedStyleHelper.TextGray,
+            Margin    = new Padding(12, 2, 0, 0)
         };
 
         buttonPanel.Controls.Add(btnPaste);
@@ -110,10 +112,10 @@ public class ImportReviewForm : Form
 
         var splitMain = new SplitContainer
         {
-            Dock = DockStyle.Fill,
-            Orientation = Orientation.Horizontal,
+            Dock             = DockStyle.Fill,
+            Orientation      = Orientation.Horizontal,
             SplitterDistance = 300,
-            BackColor = Color.FromArgb(230, 235, 240)
+            BackColor        = MedStyleHelper.BorderColor
         };
 
         var splitBottom = new SplitContainer
@@ -133,8 +135,8 @@ public class ImportReviewForm : Form
         txtRawText = CreateTextBox();
         txtNormalizedText = CreateTextBox();
 
-        splitText.Panel1.Controls.Add(WrapWithTitle("Original text", txtRawText));
-        splitText.Panel2.Controls.Add(WrapWithTitle("Normalized text", txtNormalizedText));
+        splitText.Panel1.Controls.Add(WrapWithTitle("原始文本", txtRawText));
+        splitText.Panel2.Controls.Add(WrapWithTitle("清洗后文本", txtNormalizedText));
 
         gridResults = new DataGridView
         {
@@ -145,7 +147,7 @@ public class ImportReviewForm : Form
             BackgroundColor = Color.White,
             BorderStyle = BorderStyle.FixedSingle,
             RowHeadersWidth = 32,
-            Font = new Font("Microsoft YaHei UI", 9),
+            Font = MedStyleHelper.FontSmall,
             EditMode = DataGridViewEditMode.EditOnEnter
         };
 
@@ -154,40 +156,24 @@ public class ImportReviewForm : Form
 
         splitMain.Panel1.Controls.Add(splitText);
         txtAnalysis = CreateTextBox();
-        splitBottom.Panel1.Controls.Add(WrapWithTitle("Structured exam results", gridResults));
-        splitBottom.Panel2.Controls.Add(WrapWithTitle("Analysis draft", txtAnalysis));
+        splitBottom.Panel1.Controls.Add(WrapWithTitle("结构化数据", gridResults));
+        splitBottom.Panel2.Controls.Add(WrapWithTitle("病情分析草稿", txtAnalysis));
         splitMain.Panel2.Controls.Add(splitBottom);
 
         Controls.Add(splitMain);
         Controls.Add(topPanel);
-    }
-
-    private static Button CreateButton(string text, Color color)
-    {
-        var button = new Button
-        {
-            Text = text,
-            Width = 150,
-            Height = 34,
-            BackColor = color,
-            ForeColor = Color.White,
-            FlatStyle = FlatStyle.Flat,
-            Margin = new Padding(0, 3, 8, 3),
-            Font = new Font("Microsoft YaHei UI", 9)
-        };
-        button.FlatAppearance.BorderSize = 0;
-        return button;
+        Controls.Add(header);
     }
 
     private static TextBox CreateTextBox()
     {
         return new TextBox
         {
-            Dock = DockStyle.Fill,
-            Multiline = true,
-            ScrollBars = ScrollBars.Both,
-            WordWrap = true,
-            Font = new Font("Consolas", 10),
+            Dock        = DockStyle.Fill,
+            Multiline   = true,
+            ScrollBars  = ScrollBars.Both,
+            WordWrap    = true,
+            Font        = MedStyleHelper.FontSmall,
             BorderStyle = BorderStyle.FixedSingle
         };
     }
@@ -196,18 +182,18 @@ public class ImportReviewForm : Form
     {
         var panel = new Panel
         {
-            Dock = DockStyle.Fill,
+            Dock      = DockStyle.Fill,
             BackColor = Color.White,
-            Padding = new Padding(10)
+            Padding   = new Padding(8)
         };
 
         var label = new Label
         {
-            Text = title,
-            Dock = DockStyle.Top,
-            Height = 28,
-            Font = new Font("Microsoft YaHei UI", 10, FontStyle.Bold),
-            ForeColor = Color.FromArgb(45, 45, 45)
+            Text      = title,
+            Dock      = DockStyle.Top,
+            Height    = 26,
+            Font      = MedStyleHelper.FontBold,
+            ForeColor = MedStyleHelper.TextDark
         };
 
         panel.Controls.Add(content);
@@ -217,16 +203,16 @@ public class ImportReviewForm : Form
 
     private void AddGridColumns()
     {
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ExamDate), "Exam date", 95));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ExamType), "Type", 80));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ReportName), "Report", 120));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ItemName), "Item", 140));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ResultValue), "Result", 90));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.Unit), "Unit", 70));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ReferenceRange), "Reference", 110));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.AbnormalFlag), "Flag", 80));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.Conclusion), "Conclusion", 220));
-        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.RawLine), "Raw line", 280));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ExamDate), "日期", 95));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ExamType), "检查类型", 80));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ReportName), "报告", 120));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ItemName), "项目", 140));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ResultValue), "结果", 90));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.Unit), "单位", 70));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.ReferenceRange), "参考范围", 110));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.AbnormalFlag), "状态", 80));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.Conclusion), "结论", 220));
+        gridResults.Columns.Add(CreateTextColumn(nameof(StructuredExamResult.RawLine), "原始行", 280));
     }
 
     private static DataGridViewTextBoxColumn CreateTextColumn(string propertyName, string header, int width)

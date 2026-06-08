@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using MedicalProgress.App.Helpers;
 using MedicalProgress.App.Models;
 using MedicalProgress.App.Services;
 
@@ -7,13 +8,13 @@ namespace MedicalProgress.App.Forms;
 
 public class CombinedBrowseForm : Form
 {
-    private static readonly Color ClrBtnBlue   = Color.FromArgb(21, 101, 192);
-    private static readonly Color ClrBtnGreen  = Color.FromArgb(27, 130, 80);
-    private static readonly Color ClrBtnAmber  = Color.FromArgb(200, 140, 0);
+    private static readonly Color ClrBtnBlue   = MedStyleHelper.PrimaryBlue;
+    private static readonly Color ClrBtnGreen  = MedStyleHelper.SuccessGreen;
+    private static readonly Color ClrBtnAmber  = MedStyleHelper.WarningOrange;
     private static readonly Color ClrBtnOrange = Color.FromArgb(210, 95, 20);
-    private static readonly Color ClrBtnGray   = Color.FromArgb(96, 108, 118);
-    private static readonly Font  FontMain     = new("Microsoft YaHei UI", 9);
-    private static readonly Font  FontBold     = new("Microsoft YaHei UI", 9, FontStyle.Bold);
+    private static readonly Color ClrBtnGray   = MedStyleHelper.TextGray;
+    private static readonly Font  FontMain     = MedStyleHelper.FontSmall;
+    private static readonly Font  FontBold     = MedStyleHelper.FontBold;
 
     private readonly Patient         _patient;
     private readonly List<ProgressRecord> _records;
@@ -45,9 +46,12 @@ public class CombinedBrowseForm : Form
         MinimumSize   = new Size(900, 600);
         WindowState   = FormWindowState.Maximized;
         StartPosition = FormStartPosition.CenterParent;
-        BackColor     = Color.FromArgb(245, 249, 253);
+        BackColor     = MedStyleHelper.ContentBg;
 
         // ── 顶部工具栏 ───────────────────────────────────────
+        // 顶部 Header
+        var header = MedStyleHelper.CreateHeader($"联合病程浏览  |  {_patient.Name}");
+
         var toolbar = new Panel
         {
             Dock      = DockStyle.Top,
@@ -99,13 +103,13 @@ public class CombinedBrowseForm : Form
         lblStatus = new Label
         {
             Dock      = DockStyle.Bottom,
-            Height    = 26,
+            Height    = 28,
             Text      = "就绪",
             Font      = FontMain,
-            ForeColor = Color.FromArgb(80, 100, 120),
+            ForeColor = Color.FromArgb(180, 200, 220),
             TextAlign = ContentAlignment.MiddleLeft,
             Padding   = new Padding(10, 0, 0, 0),
-            BackColor = Color.FromArgb(245, 250, 253)
+            BackColor = MedStyleHelper.StatusBarBg
         };
 
         // ── 勾选列表 ─────────────────────────────────────────
@@ -115,7 +119,7 @@ public class CombinedBrowseForm : Form
             CheckOnClick = true,
             Font         = FontMain,
             BorderStyle  = BorderStyle.None,
-            BackColor    = Color.FromArgb(245, 251, 255)
+            BackColor    = MedStyleHelper.SidebarBg
         };
         // ItemCheck 在 Load 后挂载，避免 Items.Add 触发 BeginInvoke 时句柄尚未创建
 
@@ -124,11 +128,11 @@ public class CombinedBrowseForm : Form
         {
             Dock          = DockStyle.Fill,
             Panel1MinSize = 160,
-            BackColor     = Color.FromArgb(200, 220, 240)
+            BackColor     = MedStyleHelper.BorderColor
         };
 
         // 左：记录列表
-        var leftPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(232, 245, 253), Padding = new Padding(6) };
+        var leftPanel = new Panel { Dock = DockStyle.Fill, BackColor = MedStyleHelper.SidebarBg, Padding = new Padding(6) };
         leftPanel.Controls.Add(clbRecords);
         leftPanel.Controls.Add(new Label
         {
@@ -146,7 +150,7 @@ public class CombinedBrowseForm : Form
         {
             Dock        = DockStyle.Fill,
             ReadOnly    = false,
-            Font        = new Font("Microsoft YaHei UI", 10),
+            Font        = MedStyleHelper.FontBody,
             ScrollBars  = RichTextBoxScrollBars.Vertical,
             WordWrap    = true,
             DetectUrls  = false,
@@ -170,6 +174,7 @@ public class CombinedBrowseForm : Form
         Controls.Add(splitter);
         Controls.Add(lblStatus);
         Controls.Add(toolbar);
+        Controls.Add(header);
 
         // 填充记录列表 — 存格式化字符串，避免 OwnerDraw 问题；索引与 _records 一一对应
         foreach (var r in _records)
@@ -277,7 +282,7 @@ public class CombinedBrowseForm : Form
         lblStatus.Text      = duplicateSet.Count > 0
             ? $"发现 {duplicateSet.Count} 处重复（红色），占位符已标橙"
             : "未检测到明显重复，占位符已标橙";
-        lblStatus.ForeColor = duplicateSet.Count > 0 ? Color.FromArgb(180, 40, 40) : Color.FromArgb(27, 130, 80);
+        lblStatus.ForeColor = duplicateSet.Count > 0 ? MedStyleHelper.DangerRed : MedStyleHelper.SuccessGreen;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -290,7 +295,7 @@ public class CombinedBrowseForm : Form
         if (checkedRecords.Count != 1)
         {
             lblStatus.Text      = checkedRecords.Count == 0 ? "请先勾选一条记录再保存" : "保存时请只勾选一条记录";
-            lblStatus.ForeColor = Color.FromArgb(180, 40, 40);
+            lblStatus.ForeColor = MedStyleHelper.DangerRed;
             return;
         }
 
@@ -315,7 +320,7 @@ public class CombinedBrowseForm : Form
         await _databaseService.UpdateProgressRecordAsync(record);
 
         lblStatus.Text      = $"已保存：{record.RecordDate:yyyy-MM-dd HH:mm}  {record.RecordType}";
-        lblStatus.ForeColor = Color.FromArgb(27, 130, 80);
+        lblStatus.ForeColor = MedStyleHelper.SuccessGreen;
     }
 
     private void CopyText()
@@ -323,7 +328,7 @@ public class CombinedBrowseForm : Form
         if (!string.IsNullOrWhiteSpace(txtCombined.Text))
             Clipboard.SetText(txtCombined.Text);
         lblStatus.Text      = "已复制到剪贴板";
-        lblStatus.ForeColor = Color.FromArgb(0, 137, 123);
+        lblStatus.ForeColor = MedStyleHelper.SuccessGreen;
     }
 
     private List<ProgressRecord> GetCheckedRecords()

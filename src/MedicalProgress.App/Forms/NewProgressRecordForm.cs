@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using MedicalProgress.App.Helpers;
 using MedicalProgress.App.Models;
 using MedicalProgress.App.Services;
 using MedicalProgress.App.Data;
@@ -84,27 +85,30 @@ public class NewProgressRecordForm : Form
 
     private void InitializeComponent()
     {
-        Text = _isEditMode ? "修改病程记录" : "新建病程记录";
-        Size = new Size(1440, 920);
+        Text          = _isEditMode ? "修改病程记录" : "新建病程记录";
+        Size          = new Size(1440, 920);
         StartPosition = FormStartPosition.CenterParent;
-        BackColor = Color.FromArgb(245, 247, 250);
-        MinimizeBox = false;
+        BackColor     = MedStyleHelper.ContentBg;
+        MinimizeBox   = false;
+
+        // ── Header ───────────────────────────────────────────
+        var header = MedStyleHelper.CreateHeader(Text);
 
         // ── 顶部患者信息 + 按钮行 ──────────────────────────────
         var topPanel = new Panel
         {
             Dock      = DockStyle.Top,
-            Height    = 98,
-            BackColor = Color.White,
-            Padding   = new Padding(14)
+            Height    = 88,
+            BackColor = MedStyleHelper.LightBlue,
+            Padding   = new Padding(14, 8, 14, 8)
         };
 
         lblPatientInfo = new Label
         {
             Dock      = DockStyle.Top,
-            Height    = 30,
-            Font      = new Font("Microsoft YaHei UI", 10, FontStyle.Bold),
-            ForeColor = Color.FromArgb(35, 35, 35)
+            Height    = 26,
+            Font      = MedStyleHelper.FontBold,
+            ForeColor = MedStyleHelper.PrimaryBlue
         };
 
         var topInputs = new FlowLayoutPanel
@@ -112,7 +116,8 @@ public class NewProgressRecordForm : Form
             Dock          = DockStyle.Fill,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents  = false,
-            Padding       = new Padding(0, 10, 0, 0)
+            Padding       = new Padding(0, 4, 0, 0),
+            BackColor     = Color.Transparent
         };
 
         dtpRecordDate = new DateTimePicker
@@ -121,26 +126,26 @@ public class NewProgressRecordForm : Form
             Format       = DateTimePickerFormat.Custom,
             CustomFormat = "yyyy-MM-dd HH:mm",
             Value        = DateTime.Now,
-            Font         = new Font("Microsoft YaHei UI", 9),
-            Margin       = new Padding(0, 4, 12, 0)
+            Font         = MedStyleHelper.FontSmall,
+            Margin       = new Padding(0, 2, 10, 0)
         };
 
         cmbRecordType = new ComboBox
         {
             Width         = 180,
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Font          = new Font("Microsoft YaHei UI", 9),
-            Margin        = new Padding(0, 4, 12, 0)
+            Font          = MedStyleHelper.FontSmall,
+            Margin        = new Padding(0, 2, 10, 0)
         };
         cmbRecordType.Items.AddRange(new object[] { "主任医师查房记录", "副主任医师查房记录", "主治查房", "病程记录" });
         cmbRecordType.SelectedIndex = 0;
 
-        var btnAnalyze  = CreateButton("生成分析",   Color.FromArgb(111, 66,  193));
-        var btnPreview  = CreateButton("生成预览",   Color.FromArgb(0,   123, 215));
-        var btnBrowse   = CreateButton("联合浏览",   Color.FromArgb(23,  162, 184));
-        var btnTemplate = CreateButton("套用模板",   Color.FromArgb(96,  108, 118));
-        var btnSave     = CreateButton(_isEditMode ? "保存修改" : "保存病程", Color.FromArgb(40, 167, 69));
-        var btnCancel   = CreateButton("取消",       Color.FromArgb(108, 117, 125));
+        var btnAnalyze  = MedStyleHelper.CreateSecondaryBtn("生成分析",  100);
+        var btnPreview  = MedStyleHelper.CreatePrimaryBtn("生成预览",    100);
+        var btnBrowse   = MedStyleHelper.CreateSecondaryBtn("联合浏览",  100);
+        var btnTemplate = MedStyleHelper.CreateSecondaryBtn("套用模板",  100);
+        var btnSave     = MedStyleHelper.CreateSuccessBtn(_isEditMode ? "保存修改" : "保存病程", 110);
+        var btnCancel   = MedStyleHelper.CreateSecondaryBtn("取消",       80);
 
         btnAnalyze.Click  += (_, _) => GenerateAnalysis();
         btnPreview.Click  += (_, _) => BuildPreview();
@@ -151,17 +156,28 @@ public class NewProgressRecordForm : Form
 
         txtDoctorName = new TextBox
         {
-            Width       = 130,
-            Font        = new Font("Microsoft YaHei UI", 9),
+            Width           = 130,
+            Font            = MedStyleHelper.FontSmall,
             PlaceholderText = "查房医师姓名",
-            Margin      = new Padding(0, 4, 12, 0)
+            Margin          = new Padding(0, 2, 10, 0)
         };
 
-        topInputs.Controls.Add(new Label { Text = "记录日期", AutoSize = true, Height = 30, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(0, 8, 8, 0) });
+        Label MakeLbl(string t) => new Label
+        {
+            Text      = t,
+            AutoSize  = true,
+            Height    = 30,
+            TextAlign = ContentAlignment.MiddleLeft,
+            Font      = MedStyleHelper.FontSmall,
+            ForeColor = MedStyleHelper.TextGray,
+            Margin    = new Padding(0, 6, 6, 0)
+        };
+
+        topInputs.Controls.Add(MakeLbl("记录日期"));
         topInputs.Controls.Add(dtpRecordDate);
-        topInputs.Controls.Add(new Label { Text = "记录类型", AutoSize = true, Height = 30, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(0, 8, 8, 0) });
+        topInputs.Controls.Add(MakeLbl("记录类型"));
         topInputs.Controls.Add(cmbRecordType);
-        topInputs.Controls.Add(new Label { Text = "查房医师", AutoSize = true, Height = 30, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(0, 8, 8, 0) });
+        topInputs.Controls.Add(MakeLbl("查房医师"));
         topInputs.Controls.Add(txtDoctorName);
         topInputs.Controls.Add(btnAnalyze);
         topInputs.Controls.Add(btnPreview);
@@ -179,8 +195,8 @@ public class NewProgressRecordForm : Form
             Dock          = DockStyle.Fill,
             Orientation   = Orientation.Vertical,
             Panel1MinSize = 160,
-            Panel2MinSize = 60,   // Load 后再设为真实值
-            BackColor     = Color.FromArgb(230, 235, 240)
+            Panel2MinSize = 60,
+            BackColor     = MedStyleHelper.BorderColor
         };
 
         // 左侧：输入字段
@@ -199,12 +215,12 @@ public class NewProgressRecordForm : Form
         inputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 11));
         inputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 24));
 
-        txtSubjective  = CreateMultilineTextBox();
+        txtSubjective   = CreateMultilineTextBox();
         txtPhysicalExam = CreateMultilineTextBox();
-        txtLabResults  = CreateMultilineTextBox();
-        txtExamResults = CreateMultilineTextBox();
+        txtLabResults   = CreateMultilineTextBox();
+        txtExamResults  = CreateMultilineTextBox();
         txtOrderChanges = CreateMultilineTextBox();
-        txtAnalysis    = CreateMultilineTextBox();
+        txtAnalysis     = CreateMultilineTextBox();
 
         txtDuplicateSources           = CreateMultilineTextBox();
         txtDuplicateSources.ReadOnly  = true;
@@ -225,9 +241,9 @@ public class NewProgressRecordForm : Form
         lstRecommendations = new ListBox
         {
             Dock        = DockStyle.Fill,
-            Font        = new Font("Microsoft YaHei UI", 8.5f),
+            Font        = MedStyleHelper.FontSmall,
             BorderStyle = BorderStyle.None,
-            BackColor   = Color.FromArgb(250, 252, 255),
+            BackColor   = Color.White,
             ItemHeight  = 38,
             DrawMode    = DrawMode.OwnerDrawFixed
         };
@@ -238,24 +254,24 @@ public class NewProgressRecordForm : Form
         {
             Dock      = DockStyle.Bottom,
             Height    = 168,
-            BackColor = Color.FromArgb(248, 252, 255)
+            BackColor = Color.White
         };
         var lblRec = new Label
         {
             Text      = "推荐模板（相关度排序，双击插入预览）",
             Dock      = DockStyle.Top,
-            Height    = 24,
-            Font      = new Font("Microsoft YaHei UI", 8.5f, FontStyle.Bold),
-            ForeColor = Color.FromArgb(21, 101, 192),
-            BackColor = Color.FromArgb(225, 240, 255),
+            Height    = 26,
+            Font      = MedStyleHelper.FontBold,
+            ForeColor = MedStyleHelper.PrimaryBlue,
+            BackColor = MedStyleHelper.LightBlue,
             TextAlign = ContentAlignment.MiddleLeft,
             Padding   = new Padding(8, 0, 0, 0)
         };
-        var sepRec = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = Color.FromArgb(180, 215, 245) };
+        var sepRec = new Panel { Dock = DockStyle.Top, Height = 1, BackColor = MedStyleHelper.BorderColor };
         pnlRecommend.Controls.Add(lstRecommendations);
         pnlRecommend.Controls.Add(sepRec);
         pnlRecommend.Controls.Add(lblRec);
-        mainSplit.Panel1.Controls.Add(pnlRecommend);   // Dock.Bottom → 添加顺序在 inputPanel 后，优先占底部
+        mainSplit.Panel1.Controls.Add(pnlRecommend);
 
         // 右侧：预览 + 重复提示（可拖拽分割）
         var rightSplit = new SplitContainer
@@ -264,14 +280,14 @@ public class NewProgressRecordForm : Form
             Orientation   = Orientation.Horizontal,
             Panel1MinSize = 200,
             Panel2MinSize = 60,
-            BackColor     = Color.FromArgb(220, 235, 220)
+            BackColor     = MedStyleHelper.BorderColor
         };
         rightSplit.Panel1.Controls.Add(WrapWithTitle("病程记录（重复内容自动标红，占位符标橙）", txtPreview));
         rightSplit.Panel2.Controls.Add(WrapWithTitle("重复来源提示", txtDuplicateSources));
         Load += (_, _) =>
         {
-            mainSplit.Panel2MinSize    = 400;
-            mainSplit.SplitterDistance = Math.Max(160, Math.Min(240, mainSplit.Width - 400));
+            mainSplit.Panel2MinSize     = 400;
+            mainSplit.SplitterDistance  = Math.Max(160, Math.Min(240, mainSplit.Width - 400));
             rightSplit.SplitterDistance = Math.Max(200, (int)(rightSplit.Height * 0.82));
             _ = LoadKnowledgeTemplatesAsync();
         };
@@ -280,6 +296,7 @@ public class NewProgressRecordForm : Form
 
         Controls.Add(mainSplit);
         Controls.Add(topPanel);
+        Controls.Add(header);
 
         // 自动检查防抖；窗体关闭时立即停止计时器，防止访问已销毁控件
         _checkTimer.Tick += (_, _) => { _checkTimer.Stop(); RunFullCheck(); };
@@ -351,15 +368,15 @@ public class NewProgressRecordForm : Form
 
         e.DrawBackground();
         var isSelected = (e.State & DrawItemState.Selected) != 0;
-        var bgColor = isSelected ? Color.FromArgb(210, 232, 255) : (e.Index % 2 == 0 ? Color.White : Color.FromArgb(248, 252, 255));
+        var bgColor = isSelected ? MedStyleHelper.LightBlue : (e.Index % 2 == 0 ? Color.White : Color.FromArgb(248, 252, 255));
         using var bgBrush = new SolidBrush(bgColor);
         e.Graphics.FillRectangle(bgBrush, e.Bounds);
 
-        var titleFont   = new Font("Microsoft YaHei UI", 8.5f, FontStyle.Bold);
-        var subFont     = new Font("Microsoft YaHei UI", 7.5f);
-        var titleColor  = isSelected ? Color.FromArgb(10, 60, 140) : Color.FromArgb(30, 30, 30);
-        var subColor    = Color.FromArgb(100, 120, 150);
-        var scoreColor  = Color.FromArgb(21, 101, 192);
+        var titleFont   = MedStyleHelper.FontBold;
+        var subFont     = MedStyleHelper.FontSmall;
+        var titleColor  = isSelected ? Color.FromArgb(10, 60, 140) : MedStyleHelper.TextDark;
+        var subColor    = MedStyleHelper.TextGray;
+        var scoreColor  = MedStyleHelper.PrimaryBlue;
         var scoreStr    = $"{item.Score:F1}分";
         var scoreSize   = e.Graphics.MeasureString(scoreStr, subFont);
 
@@ -373,9 +390,6 @@ public class NewProgressRecordForm : Form
         e.Graphics.DrawString(item.Template.Title, titleFont, titleBrush, titleRect, new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
         e.Graphics.DrawString($"{item.Template.TemplateType}  ·  {item.Template.Category?.Name ?? item.Template.Keywords}", subFont, subBrush, subRect, new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
         e.Graphics.DrawString(scoreStr, subFont, scoreBrush, e.Bounds.Right - scoreSize.Width - 6, e.Bounds.Y + 3);
-
-        titleFont.Dispose();
-        subFont.Dispose();
     }
 
     private void LstRecommendations_DoubleClick(object? sender, EventArgs e)
@@ -872,30 +886,13 @@ public class NewProgressRecordForm : Form
     //  UI 工厂方法
     // ─────────────────────────────────────────────────────────
 
-    private static Button CreateButton(string text, Color color)
-    {
-        var b = new Button
-        {
-            Text      = text,
-            Width     = 100,
-            Height    = 34,
-            BackColor = color,
-            ForeColor = Color.White,
-            FlatStyle = FlatStyle.Flat,
-            Font      = new Font("Microsoft YaHei UI", 9),
-            Margin    = new Padding(0, 2, 6, 0)
-        };
-        b.FlatAppearance.BorderSize = 0;
-        return b;
-    }
-
     private static TextBox CreateMultilineTextBox() => new()
     {
         Dock        = DockStyle.Fill,
         Multiline   = true,
         ScrollBars  = ScrollBars.Vertical,
         WordWrap    = true,
-        Font        = new Font("Microsoft YaHei UI", 9),
+        Font        = MedStyleHelper.FontSmall,
         BorderStyle = BorderStyle.FixedSingle
     };
 
@@ -904,7 +901,7 @@ public class NewProgressRecordForm : Form
         Dock        = DockStyle.Fill,
         ScrollBars  = RichTextBoxScrollBars.Vertical,
         WordWrap    = true,
-        Font        = new Font("Microsoft YaHei UI", 10),
+        Font        = MedStyleHelper.FontBody,
         BorderStyle = BorderStyle.FixedSingle,
         BackColor   = Color.White,
         DetectUrls  = false
@@ -919,8 +916,8 @@ public class NewProgressRecordForm : Form
             Text      = title,
             Dock      = DockStyle.Top,
             Height    = 22,
-            Font      = new Font("Microsoft YaHei UI", 9, FontStyle.Bold),
-            ForeColor = Color.FromArgb(45, 45, 45)
+            Font      = MedStyleHelper.FontBold,
+            ForeColor = MedStyleHelper.TextDark
         });
         return panel;
     }

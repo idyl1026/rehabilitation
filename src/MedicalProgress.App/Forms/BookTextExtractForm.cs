@@ -34,25 +34,10 @@ public class BookTextExtractForm : Form
         Size            = new Size(1100, 720);
         MinimumSize     = new Size(900, 600);
         StartPosition   = FormStartPosition.CenterParent;
-        AppleStyleHelper.ApplyFormStyle(this);
+        MedStyleHelper.ApplyWindowStyle(this);
 
         // ── 顶部标题栏 ────────────────────────────────────────────
-        var header = new Panel
-        {
-            Dock      = DockStyle.Top,
-            Height    = 56,
-            BackColor = AppleStyleHelper.HeaderDark
-        };
-        var lblTitle = new Label
-        {
-            Text      = "从书本提取知识点",
-            Font      = new Font("Segoe UI", 16f, FontStyle.Bold),
-            ForeColor = Color.White,
-            AutoSize  = true,
-            Top       = 14
-        };
-        header.Controls.Add(lblTitle);
-        header.Resize += (_, _) => lblTitle.Left = (header.Width - lblTitle.PreferredWidth) / 2;
+        var header = MedStyleHelper.CreateHeader("教材知识点提取");
 
         // ── 底部状态栏 ────────────────────────────────────────────
         var footer = new Panel
@@ -65,20 +50,20 @@ public class BookTextExtractForm : Form
         lblStatus = new Label
         {
             Text      = "请粘贴教材原文，然后点击【提取核心知识点】",
-            Font      = AppleStyleHelper.FontBody,
-            ForeColor = AppleStyleHelper.DisabledGray,
+            Font      = MedStyleHelper.FontBody,
+            ForeColor = MedStyleHelper.DisabledGray,
             AutoSize  = false,
             Dock      = DockStyle.Left,
             Width     = 520,
             TextAlign = ContentAlignment.MiddleLeft
         };
-        btnImport = AppleStyleHelper.CreatePrimaryButton("✅ 导入选中到知识库", 180);
+        btnImport = MedStyleHelper.CreatePrimaryButton("✅ 导入选中到知识库", 180);
         btnImport.Dock    = DockStyle.Right;
         btnImport.Height  = 40;
         btnImport.Enabled = false;
         btnImport.Click  += BtnImport_Click;
 
-        var btnCancel = AppleStyleHelper.CreateSecondaryButton("取消", 80);
+        var btnCancel = MedStyleHelper.CreateSecondaryButton("取消", 80);
         btnCancel.Dock   = DockStyle.Right;
         btnCancel.Height = 40;
         btnCancel.Margin = new Padding(0, 0, 8, 0);
@@ -94,7 +79,7 @@ public class BookTextExtractForm : Form
             Dock             = DockStyle.Fill,
             SplitterDistance = 500,
             Panel1MinSize    = 350,
-            BackColor        = AppleStyleHelper.BgGray
+            BackColor        = MedStyleHelper.BgGray
         };
 
         // 左侧：输入区域
@@ -102,8 +87,8 @@ public class BookTextExtractForm : Form
         var lblInputTitle = new Label
         {
             Text      = "粘贴教材原文",
-            Font      = AppleStyleHelper.FontBold,
-            ForeColor = AppleStyleHelper.HeaderDark,
+            Font      = MedStyleHelper.FontBold,
+            ForeColor = MedStyleHelper.HeaderDark,
             Dock      = DockStyle.Top,
             Height    = 28,
             TextAlign = ContentAlignment.MiddleLeft
@@ -113,14 +98,14 @@ public class BookTextExtractForm : Form
             Dock        = DockStyle.Fill,
             Multiline   = true,
             ScrollBars  = ScrollBars.Vertical,
-            Font        = AppleStyleHelper.FontBody,
+            Font        = MedStyleHelper.FontBody,
             BackColor   = Color.White,
             BorderStyle = BorderStyle.FixedSingle,
             WordWrap    = true,
             PlaceholderText = "在此粘贴教材/书本的章节文字，支持多段落……"
         };
 
-        btnExtract = AppleStyleHelper.CreatePrimaryButton("🔍 提取核心知识点", 180);
+        btnExtract = MedStyleHelper.CreatePrimaryButton("🔍 提取核心知识点", 180);
         btnExtract.Dock    = DockStyle.Bottom;
         btnExtract.Height  = 40;
         btnExtract.Margin  = new Padding(0, 8, 0, 0);
@@ -135,8 +120,8 @@ public class BookTextExtractForm : Form
         var lblResultTitle = new Label
         {
             Text      = "提取结果（支持多选）",
-            Font      = AppleStyleHelper.FontBold,
-            ForeColor = AppleStyleHelper.HeaderDark,
+            Font      = MedStyleHelper.FontBold,
+            ForeColor = MedStyleHelper.HeaderDark,
             Dock      = DockStyle.Top,
             Height    = 28,
             TextAlign = ContentAlignment.MiddleLeft
@@ -145,7 +130,7 @@ public class BookTextExtractForm : Form
         lstResults = new ListBox
         {
             Dock           = DockStyle.Fill,
-            Font           = AppleStyleHelper.FontBody,
+            Font           = MedStyleHelper.FontBody,
             BackColor      = Color.White,
             BorderStyle    = BorderStyle.FixedSingle,
             SelectionMode  = SelectionMode.MultiExtended,
@@ -281,7 +266,7 @@ public class BookTextExtractForm : Form
             FormBorderStyle = FormBorderStyle.FixedDialog,
             MaximizeBox     = false,
             MinimizeBox     = false,
-            BackColor       = AppleStyleHelper.BgGray
+            BackColor       = MedStyleHelper.BgGray
         };
         var lbl = new Label { Text = "请选择导入到哪个学科：", Left = 16, Top = 16, Width = 280, AutoSize = false, Height = 24 };
         var cmb = new ComboBox
@@ -290,16 +275,16 @@ public class BookTextExtractForm : Form
             Top           = 46,
             Width         = 272,
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Font          = AppleStyleHelper.FontBody
+            Font          = MedStyleHelper.FontBody
         };
         foreach (var s in subjects) cmb.Items.Add(s.Name);
         // 默认选康复医学科
         var defIdx = subjects.FindIndex(s => s.Name == "康复医学科");
         cmb.SelectedIndex = defIdx >= 0 ? defIdx : 0;
 
-        var ok     = AppleStyleHelper.CreatePrimaryButton("确定", 90);
+        var ok     = MedStyleHelper.CreatePrimaryButton("确定", 90);
         ok.Left    = 16; ok.Top = 110; ok.DialogResult = DialogResult.OK;
-        var cancel = AppleStyleHelper.CreateSecondaryButton("取消", 80);
+        var cancel = MedStyleHelper.CreateSecondaryButton("取消", 80);
         cancel.Left = 120; cancel.Top = 110; cancel.DialogResult = DialogResult.Cancel;
 
         dlg.Controls.AddRange(new Control[] { lbl, cmb, ok, cancel });
@@ -323,7 +308,7 @@ public class BookTextExtractForm : Form
         if (lstResults.Items[e.Index] is not KnowledgePoint kp) return;
 
         var selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
-        var bg = selected ? AppleStyleHelper.SelectionBg : Color.White;
+        var bg = selected ? MedStyleHelper.SelectionBg : Color.White;
         e.Graphics.FillRectangle(new SolidBrush(bg), e.Bounds);
 
         // 标题
@@ -331,9 +316,9 @@ public class BookTextExtractForm : Form
         using var bodyFont  = new Font("Segoe UI", 9f);
         using var scoreFont = new Font("Segoe UI", 8.5f);
 
-        var titleColor = AppleStyleHelper.HeaderDark;
+        var titleColor = MedStyleHelper.HeaderDark;
         var bodyColor  = Color.FromArgb(80, 80, 90);
-        var scoreColor = AppleStyleHelper.PrimaryBlue;
+        var scoreColor = MedStyleHelper.PrimaryBlue;
 
         var x   = e.Bounds.X + 8;
         var y   = e.Bounds.Y + 4;
