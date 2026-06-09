@@ -68,13 +68,41 @@ public class MainWorkbenchViewModel : BaseViewModel
     private RelayCommand? _deletePatientCommand;
 
     public RelayCommand NewPatientCommand => _newPatientCommand ??= new(() => OpenNewPatient?.Invoke());
-    public RelayCommand NewNoteCommand => _newNoteCommand ??= new(() => { if (SelectedAdmission != null) OpenNewNote?.Invoke(SelectedAdmission); });
-    public RelayCommand EditPatientCommand => _editPatientCommand ??= new(() => { if (SelectedAdmission != null) OpenEditPatient?.Invoke(SelectedAdmission); });
-    public RelayCommand RehabCommand => _rehabCommand ??= new(() => { if (SelectedAdmission != null) OpenRehab?.Invoke(SelectedAdmission); });
-    public RelayCommand DischargeCommand => _dischargeCommand ??= new(() => { if (SelectedAdmission != null) OpenDischarge?.Invoke(SelectedAdmission); });
-    public RelayCommand OpenWordCommand => _openWordCommand ??= new(() => { if (SelectedAdmission != null) OpenWordFile?.Invoke(SelectedAdmission); });
-    public RelayCommand OpenDirCommand => _openDirCommand ??= new(() => { if (SelectedAdmission != null) OpenPatientDir?.Invoke(SelectedAdmission); });
-    public RelayCommand DeletePatientCommand => _deletePatientCommand ??= new(() => { if (SelectedAdmission != null) ConfirmDeleteAdmission?.Invoke(SelectedAdmission); });
+    public RelayCommand NewNoteCommand => _newNoteCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        OpenNewNote?.Invoke(SelectedAdmission);
+    });
+    public RelayCommand EditPatientCommand => _editPatientCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        OpenEditPatient?.Invoke(SelectedAdmission);
+    });
+    public RelayCommand RehabCommand => _rehabCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        OpenRehab?.Invoke(SelectedAdmission);
+    });
+    public RelayCommand DischargeCommand => _dischargeCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        OpenDischarge?.Invoke(SelectedAdmission);
+    });
+    public RelayCommand OpenWordCommand => _openWordCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        OpenWordFile?.Invoke(SelectedAdmission);
+    });
+    public RelayCommand OpenDirCommand => _openDirCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        OpenPatientDir?.Invoke(SelectedAdmission);
+    });
+    public RelayCommand DeletePatientCommand => _deletePatientCommand ??= new(() =>
+    {
+        if (SelectedAdmission == null) { System.Windows.MessageBox.Show("请先在左侧列表点击选中一位患者。", "提示"); return; }
+        ConfirmDeleteAdmission?.Invoke(SelectedAdmission);
+    });
 
     public MainWorkbenchViewModel()
     {

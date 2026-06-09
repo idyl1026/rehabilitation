@@ -37,8 +37,13 @@
                 </StackPanel>
                 <!-- 右：快捷按钮 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Button Content="导入旧版数据" Style="{StaticResource SecondaryButton}"
+                            Padding="10,4" FontSize="12" Margin="0,0,8,0"
+                            Foreground="#A8C4E0" BorderBrush="#3B5A8B"
+                            Background="Transparent"
+                            Click="ImportLegacyButton_Click"/>
                     <Button Content="+ 新建患者" Style="{StaticResource SecondaryButton}"
-                            Padding="10,4" FontSize="12" Margin="0,0,6,0"
+                            Padding="10,4" FontSize="12"
                             Background="#1F4A80" Foreground="White" BorderBrush="#3B5A8B"
                             Command="{Binding NewPatientCommand}"/>
                 </StackPanel>

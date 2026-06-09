@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Controls;
 using BingChengAssistant.Data;
 using BingChengAssistant.Models;
+using BingChengAssistant.Services;
 using BingChengAssistant.ViewModels;
 
 namespace BingChengAssistant.Views;
@@ -91,6 +92,48 @@ public partial class MainWorkbenchView : System.Windows.Window
 
     private void RefreshButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
+        _vm.LoadAdmissions();
+    }
+
+    private void ImportLegacyButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (!LegacyMigrationService.LegacyDbExists())
+        {
+            System.Windows.MessageBox.Show(
+                $"未找到旧版数据库，请确认是否安装过旧版软件。\n\n预期路径：\n{LegacyMigrationService.LegacyDbPath}",
+                "未找到旧版数据", System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
+            return;
+        }
+
+        var confirm = System.Windows.MessageBox.Show(
+            $"检测到旧版数据库，将把旧版患者和病程记录导入当前医生账号。\n\n已存在的患者（姓名+入院日期相同）会自动跳过，不会重复导入。\n\n是否继续？",
+            "导入旧版数据", System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+        var doctorId = AppContextService.CurrentDoctor?.Id ?? 0;
+        if (doctorId == 0)
+        {
+            System.Windows.MessageBox.Show("请先登录医生账号再导入。", "提示");
+            return;
+        }
+
+        var (patients, notes, error) = LegacyMigrationService.Migrate(doctorId);
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            System.Windows.MessageBox.Show($"导入失败：{error}", "错误",
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            return;
+        }
+
+        System.Windows.MessageBox.Show(
+            $"导入完成！\n共导入患者：{patients} 人\n病程记录：{notes} 条",
+            "导入成功", System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information);
+
         _vm.LoadAdmissions();
     }
 }
