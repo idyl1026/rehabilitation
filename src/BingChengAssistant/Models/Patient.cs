@@ -38,6 +38,9 @@ public class Admission
     // 导航属性（不存数据库，运行时填充）
     public Patient? Patient { get; set; }
     public string WordStatus { get; set; } = "未创建";
+
+    /// <summary>住院天数（在院取今日，出院取出院日）</summary>
+    public int HospitalDays => (int)((DischargeDate ?? DateTime.Today) - AdmissionDate).TotalDays + 1;
 }
 
 public class PatientInsuranceInfo

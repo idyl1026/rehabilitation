@@ -37,10 +37,21 @@
                 </StackPanel>
                 <!-- 右：快捷按钮 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,4,0">
-                    <Button Content="导入旧版数据" Style="{StaticResource SecondaryButton}"
+                    <Button Content="知识库" Style="{StaticResource SecondaryButton}"
+                            Padding="10,4" FontSize="12" Margin="0,0,6,0"
+                            Foreground="#A8C4E0" BorderBrush="#3B5A8B" Background="Transparent"
+                            Click="KnowledgeButton_Click"/>
+                    <Button Content="模板管理" Style="{StaticResource SecondaryButton}"
+                            Padding="10,4" FontSize="12" Margin="0,0,6,0"
+                            Foreground="#A8C4E0" BorderBrush="#3B5A8B" Background="Transparent"
+                            Click="TemplateButton_Click"/>
+                    <Button Content="设置" Style="{StaticResource SecondaryButton}"
                             Padding="10,4" FontSize="12" Margin="0,0,8,0"
-                            Foreground="#A8C4E0" BorderBrush="#3B5A8B"
-                            Background="Transparent"
+                            Foreground="#A8C4E0" BorderBrush="#3B5A8B" Background="Transparent"
+                            Click="SettingsButton_Click"/>
+                    <Button Content="导入旧版" Style="{StaticResource SecondaryButton}"
+                            Padding="10,4" FontSize="12" Margin="0,0,8,0"
+                            Foreground="#A8C4E0" BorderBrush="#3B5A8B" Background="Transparent"
                             Click="ImportLegacyButton_Click"/>
                     <Button Content="+ 新建患者" Style="{StaticResource SecondaryButton}"
                             Padding="10,4" FontSize="12"
@@ -282,7 +293,8 @@
                     <ListView Grid.Row="3"
                               ItemsSource="{Binding Notes}"
                               BorderThickness="0" Background="Transparent"
-                              Margin="8,4,8,4">
+                              Margin="8,4,8,4"
+                              MouseDoubleClick="NoteList_DoubleClick">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="日期" Width="130"

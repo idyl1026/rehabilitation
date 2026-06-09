@@ -4,6 +4,7 @@ using System.Windows;
 using BingChengAssistant.Data;
 using BingChengAssistant.Models;
 using BingChengAssistant.Services;
+using System.Linq;
 
 namespace BingChengAssistant.ViewModels;
 
@@ -44,6 +45,38 @@ public class ProgressNoteEditViewModel : BaseViewModel
         }
     }
 
+    // 知识库搜索
+    private string _knowledgeKeyword = "";
+    private KnowledgeItem? _selectedKnowledge;
+    public ObservableCollection<KnowledgeItem> KnowledgeResults { get; } = new();
+    public KnowledgeItem? SelectedKnowledge { get => _selectedKnowledge; set => SetField(ref _selectedKnowledge, value); }
+    public string KnowledgeKeyword
+    {
+        get => _knowledgeKeyword;
+        set { SetField(ref _knowledgeKeyword, value); SearchKnowledge(); }
+    }
+    private void SearchKnowledge()
+    {
+        KnowledgeResults.Clear();
+        var list = string.IsNullOrWhiteSpace(_knowledgeKeyword)
+            ? new KnowledgeRepository().GetAll().Take(10).ToList()
+            : new KnowledgeRepository().Search(_knowledgeKeyword);
+        foreach (var k in list) KnowledgeResults.Add(k);
+    }
+    public void InsertKnowledge(KnowledgeItem item)
+        => Content += $"\n\n【{item.Title}】\n{item.Content}";
+
+    public bool IsEdit { get; private set; }
+    private int _noteId;
+
+    public void LoadNote(ProgressNote note)
+    {
+        IsEdit = true;
+        _noteId = note.Id;
+        NoteType = note.NoteType;
+        Content = note.Content;
+    }
+
     public Action? OnSaved { get; set; }
 
     private RelayCommand? _saveCommand;
@@ -56,6 +89,7 @@ public class ProgressNoteEditViewModel : BaseViewModel
     public ProgressNoteEditViewModel()
     {
         LoadTemplates();
+        SearchKnowledge();
     }
 
     private void LoadTemplates()
@@ -73,20 +107,18 @@ public class ProgressNoteEditViewModel : BaseViewModel
     private void Save()
     {
         if (string.IsNullOrWhiteSpace(Content)) return;
-        var note = new ProgressNote
-        {
-            AdmissionId = Admission!.Id,
-            DoctorId = AppContextService.CurrentDoctor!.Id,
-            NoteType = NoteType,
-            Content = Content,
-            RecordDate = DateTime.Now,
-        };
         var repo = new ProgressNoteRepository();
-        int id = repo.Insert(note);
-        note.Id = id;
-
-        ResearchIndexService.Update(Admission.Id);
-        OperationLogService.Log("保存病程", $"{Admission.Patient?.Name} - {NoteType}");
+        if (IsEdit)
+        {
+            repo.Update(new ProgressNote { Id = _noteId, AdmissionId = Admission!.Id, DoctorId = AppContextService.CurrentDoctor!.Id, NoteType = NoteType, Content = Content, RecordDate = DateTime.Now });
+        }
+        else
+        {
+            var note = new ProgressNote { AdmissionId = Admission!.Id, DoctorId = AppContextService.CurrentDoctor!.Id, NoteType = NoteType, Content = Content, RecordDate = DateTime.Now };
+            repo.Insert(note);
+        }
+        ResearchIndexService.Update(Admission!.Id);
+        OperationLogService.Log(IsEdit ? "编辑病程" : "保存病程", $"{Admission.Patient?.Name} - {NoteType}");
         OnSaved?.Invoke();
     }
 

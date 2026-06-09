@@ -90,6 +90,19 @@ public partial class MainWorkbenchView : System.Windows.Window
                 Process.Start(new ProcessStartInfo(dir) { UseShellExecute = true });
         };
 
+        _vm.OpenEditNote = (adm, note) =>
+        {
+            try
+            {
+                var dlg = new ProgressNoteEditView(adm, note) { Owner = this };
+                if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"打开病程编辑失败：{ex.Message}", "错误");
+            }
+        };
+
         _vm.ConfirmDeleteAdmission = (adm) =>
         {
             var result = System.Windows.MessageBox.Show(
@@ -115,6 +128,21 @@ public partial class MainWorkbenchView : System.Windows.Window
     {
         _vm.LoadAdmissions();
     }
+
+    private void NoteList_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (sender is System.Windows.Controls.ListView lv && lv.SelectedItem is BingChengAssistant.Models.ProgressNote note && _vm.SelectedAdmission != null)
+            _vm.OpenEditNote?.Invoke(_vm.SelectedAdmission, note);
+    }
+
+    private void KnowledgeButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        => new KnowledgeBaseView { Owner = this }.ShowDialog();
+
+    private void TemplateButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        => new TemplateManageView { Owner = this }.ShowDialog();
+
+    private void SettingsButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        => new SettingsView { Owner = this }.ShowDialog();
 
     private void ImportLegacyButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {

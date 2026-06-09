@@ -1,0 +1,87 @@
+<Window x:Class="BingChengAssistant.Views.SettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="设置"
+        Width="680" Height="580"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource BaseWindow}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource HeaderPanel}">
+            <TextBlock Text="系统设置" Foreground="White" FontSize="15" FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
+            <StackPanel>
+
+                <!-- 数据库路径 -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="数据存储" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="数据库位置" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                        <Border Background="#F8FAFC" CornerRadius="4" Padding="8,6"
+                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                            <TextBlock Text="{Binding DbPath}" FontSize="11"
+                                       Foreground="{StaticResource TextGrayBrush}" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 备份还原 -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="数据备份 / 还原" Style="{StaticResource SectionTitle}"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Button Content="立即备份" Style="{StaticResource PrimaryButton}"
+                                    Padding="16,8" Margin="0,0,10,0"
+                                    Command="{Binding BackupCommand}"/>
+                            <Button Content="刷新列表" Style="{StaticResource SecondaryButton}"
+                                    Padding="12,8" Command="{Binding RefreshCommand}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="备份文件列表" Style="{StaticResource FieldLabel}" Margin="0,0,0,6"/>
+                        <ListBox ItemsSource="{Binding Backups}"
+                                 SelectedItem="{Binding SelectedBackup}"
+                                 Height="160" BorderThickness="1"
+                                 BorderBrush="{StaticResource BorderBrush}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Display}" FontSize="12" Padding="6,4"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <Button Content="还原选中备份" Style="{StaticResource DangerButton}"
+                                Padding="16,8" Margin="0,8,0,0" HorizontalAlignment="Left"
+                                Command="{Binding RestoreCommand}"/>
+
+                        <TextBlock Text="{Binding StatusMessage}" FontSize="12" Margin="0,8,0,0"
+                                   Foreground="{StaticResource PrimaryBlueBrush}" TextWrapping="Wrap"
+                                   Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 关于 -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="关于" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock FontSize="13" Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,6">
+                            <Run Text="病程助手  "/>
+                            <Run Text="{Binding AppVersion}" FontWeight="Bold"/>
+                        </TextBlock>
+                        <TextBlock Text="内网单机版 · 仅用于辅助病程书写，不替代正式电子病历系统"
+                                   FontSize="12" Foreground="{StaticResource TextGrayBrush}"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

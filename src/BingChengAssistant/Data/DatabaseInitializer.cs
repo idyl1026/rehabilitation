@@ -184,6 +184,16 @@ CREATE TABLE IF NOT EXISTS system_settings (
     value TEXT DEFAULT '',
     remark TEXT DEFAULT ''
 );
+
+CREATE TABLE IF NOT EXISTS knowledge_base (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT DEFAULT '',
+    category TEXT DEFAULT '通用',
+    tags TEXT DEFAULT '',
+    is_active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+);
 """;
         using var cmd = c.CreateCommand();
         cmd.CommandText = sql;

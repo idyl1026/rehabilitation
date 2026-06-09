@@ -51,6 +51,7 @@ public class MainWorkbenchViewModel : BaseViewModel
     public Action? OpenNewPatient { get; set; }
     public Action<Admission>? OpenEditPatient { get; set; }
     public Action<Admission>? OpenNewNote { get; set; }
+    public Action<Admission, ProgressNote>? OpenEditNote { get; set; }
     public Action<Admission>? OpenRehab { get; set; }
     public Action<Admission>? OpenDischarge { get; set; }
     public Action<Admission>? OpenWordFile { get; set; }
