@@ -8,10 +8,6 @@
         ResizeMode="NoResize"
         Style="{StaticResource BaseWindow}">
 
-    <Window.DataContext>
-        <vm:PatientEditViewModel/>
-    </Window.DataContext>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>

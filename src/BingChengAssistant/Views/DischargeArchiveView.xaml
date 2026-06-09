@@ -7,10 +7,6 @@
         WindowStartupLocation="CenterOwner"
         Style="{StaticResource BaseWindow}">
 
-    <Window.DataContext>
-        <vm:DischargeArchiveViewModel/>
-    </Window.DataContext>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>

@@ -9,8 +9,9 @@ public partial class RehabAssessmentView : System.Windows.Window
 
     public RehabAssessmentView(Admission adm)
     {
+        _vm = new RehabAssessmentViewModel();
+        DataContext = _vm;
         InitializeComponent();
-        _vm = (RehabAssessmentViewModel)DataContext;
         _vm.Admission = adm;
         _vm.OnSaved = () => { DialogResult = true; Close(); };
     }

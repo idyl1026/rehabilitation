@@ -27,7 +27,12 @@ public class ProgressNoteEditViewModel : BaseViewModel
             LoadTemplates();
         }
     }
-    public string Content { get => _content; set => SetField(ref _content, value); }
+    public string Content
+    {
+        get => _content;
+        set { SetField(ref _content, value); OnPropertyChanged(nameof(WordCount)); }
+    }
+    public string WordCount => $"已输入 {_content.Length} 字";
     public NoteTemplate? SelectedTemplate
     {
         get => _selectedTemplate;

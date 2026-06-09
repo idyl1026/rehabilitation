@@ -9,8 +9,9 @@ public partial class DischargeArchiveView : System.Windows.Window
 
     public DischargeArchiveView(Admission adm)
     {
+        _vm = new DischargeArchiveViewModel();
+        DataContext = _vm;
         InitializeComponent();
-        _vm = (DischargeArchiveViewModel)DataContext;
         _vm.Admission = adm;
         _vm.OnArchived = () => { DialogResult = true; Close(); };
     }

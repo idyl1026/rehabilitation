@@ -9,8 +9,9 @@ public partial class ProgressNoteEditView : System.Windows.Window
 
     public ProgressNoteEditView(Admission adm)
     {
+        _vm = new ProgressNoteEditViewModel();
+        DataContext = _vm;
         InitializeComponent();
-        _vm = (ProgressNoteEditViewModel)DataContext;
         _vm.Admission = adm;
         _vm.OnSaved = () => { DialogResult = true; Close(); };
     }

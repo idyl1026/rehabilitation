@@ -8,10 +8,6 @@
         WindowStartupLocation="CenterOwner"
         Style="{StaticResource BaseWindow}">
 
-    <Window.DataContext>
-        <vm:ProgressNoteEditViewModel/>
-    </Window.DataContext>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>
@@ -122,11 +118,8 @@
                             <TextBlock Text="病程内容" FontWeight="Bold" FontSize="13"
                                        VerticalAlignment="Center" Foreground="{StaticResource TextDarkBrush}"/>
                             <TextBlock Grid.Column="1" FontSize="11" Foreground="{StaticResource TextGrayBrush}"
-                                       VerticalAlignment="Center">
-                                <Run Text="已输入 "/>
-                                <Run Text="{Binding Content.Length}"/>
-                                <Run Text=" 字"/>
-                            </TextBlock>
+                                       VerticalAlignment="Center"
+                                       Text="{Binding WordCount}"/>
                         </Grid>
                     </Border>
 

@@ -9,8 +9,9 @@ public partial class PatientEditView : System.Windows.Window
 
     public PatientEditView(Admission? adm = null)
     {
+        _vm = new PatientEditViewModel();
+        DataContext = _vm;
         InitializeComponent();
-        _vm = (PatientEditViewModel)DataContext;
         if (adm != null) _vm.LoadAdmission(adm);
         _vm.OnSuccess = () => { DialogResult = true; Close(); };
     }

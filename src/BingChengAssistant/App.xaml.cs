@@ -10,6 +10,23 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // 全局异常处理：避免无提示崩溃，显示错误信息并记录日志
+        DispatcherUnhandledException += (s, ex) =>
+        {
+            LogService.Error("未处理异常", ex.Exception);
+            System.Windows.MessageBox.Show(
+                $"程序遇到意外错误：\n\n{ex.Exception.Message}\n\n错误已记录到日志，请联系开发者。",
+                "错误", System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
+            ex.Handled = true; // 不退出程序
+        };
+
+        AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
+        {
+            if (ex.ExceptionObject is Exception exception)
+                LogService.Error("严重未处理异常", exception);
+        };
+
         // 初始化目录结构
         DirectoryInitializer.EnsureDirectories();
 

@@ -33,23 +33,44 @@ public partial class MainWorkbenchView : System.Windows.Window
 
         _vm.OpenNewNote = (adm) =>
         {
-            var dlg = new ProgressNoteEditView(adm);
-            dlg.Owner = this;
-            if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            try
+            {
+                var dlg = new ProgressNoteEditView(adm) { Owner = this };
+                if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"打开病程记录窗口失败：{ex.Message}", "错误");
+                BingChengAssistant.Services.LogService.Error("打开ProgressNoteEditView失败", ex);
+            }
         };
 
         _vm.OpenRehab = (adm) =>
         {
-            var dlg = new RehabAssessmentView(adm);
-            dlg.Owner = this;
-            if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            try
+            {
+                var dlg = new RehabAssessmentView(adm) { Owner = this };
+                if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"打开康复评估窗口失败：{ex.Message}", "错误");
+                BingChengAssistant.Services.LogService.Error("打开RehabAssessmentView失败", ex);
+            }
         };
 
         _vm.OpenDischarge = (adm) =>
         {
-            var dlg = new DischargeArchiveView(adm);
-            dlg.Owner = this;
-            if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            try
+            {
+                var dlg = new DischargeArchiveView(adm) { Owner = this };
+                if (dlg.ShowDialog() == true) _vm.LoadAdmissions();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"打开出院归档窗口失败：{ex.Message}", "错误");
+                BingChengAssistant.Services.LogService.Error("打开DischargeArchiveView失败", ex);
+            }
         };
 
         _vm.OpenWordFile = (adm) =>
