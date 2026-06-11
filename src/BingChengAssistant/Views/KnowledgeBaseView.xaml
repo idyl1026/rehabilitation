@@ -81,9 +81,23 @@
                         </ListBox.ItemContainerStyle>
                     </ListBox>
 
-                    <Button Grid.Row="3" Content="+ 新增条目" Style="{StaticResource PrimaryButton}"
-                            Margin="8,6,8,8" HorizontalAlignment="Stretch" Padding="10,7"
-                            Command="{Binding NewCommand}"/>
+                    <StackPanel Grid.Row="3" Margin="8,6,8,8">
+                        <Button Content="+ 新增条目" Style="{StaticResource PrimaryButton}"
+                                HorizontalAlignment="Stretch" Padding="10,7" Margin="0,0,0,6"
+                                Command="{Binding NewCommand}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="导入Excel" Style="{StaticResource SecondaryButton}"
+                                    Padding="6,6" FontSize="12" Margin="0,0,3,0"
+                                    Click="ImportExcel_Click"/>
+                            <Button Grid.Column="1" Content="下载模板" Style="{StaticResource SecondaryButton}"
+                                    Padding="6,6" FontSize="12" Margin="3,0,0,0"
+                                    Click="ExportTemplate_Click"/>
+                        </Grid>
+                    </StackPanel>
                 </Grid>
             </Border>
 

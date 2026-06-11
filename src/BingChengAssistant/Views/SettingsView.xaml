@@ -68,6 +68,21 @@
                     </StackPanel>
                 </Border>
 
+                <!-- 量表导入 -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="评估量表导入" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="Excel 格式：代码 | 名称 | 说明（第一行为表头），重复代码自动跳过"
+                                   FontSize="12" Foreground="{StaticResource TextGrayBrush}" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="导入量表Excel" Style="{StaticResource PrimaryButton}"
+                                    Padding="16,8" Margin="0,0,10,0" Click="ImportScales_Click"/>
+                            <Button Content="下载量表模板" Style="{StaticResource SecondaryButton}"
+                                    Padding="12,8" Click="ExportScaleTemplate_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
                 <!-- 关于 -->
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
