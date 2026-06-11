@@ -47,14 +47,23 @@ jobs:
           path: publish_v12/BingChengAssistant.exe
           retention-days: 30
 
+      - name: Prepare release assets (ASCII filenames)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          mkdir -p release_assets
+          cp publish_v12/BingChengAssistant.exe release_assets/
+          cp "导入数据/知识库导入_病程模板.xlsx" release_assets/knowledge_import.xlsx
+          cp "导入数据/量表导入_评定量表.xlsx" release_assets/scales_import.xlsx
+
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            publish_v12/BingChengAssistant.exe
-            导入数据/知识库导入_病程模板.xlsx
-            导入数据/量表导入_评定量表.xlsx
+          files: release_assets/*
+          fail_on_unmatched_files: false
+          draft: false
+          prerelease: false
           name: "病程助手 ${{ github.ref_name }}"
           body: |
             ## 病程助手 ${{ github.ref_name }}
@@ -69,6 +78,10 @@ jobs:
 
             ### 使用方法
             下载 `BingChengAssistant.exe`，双击运行，无需安装任何依赖。
+
+            ### 附件说明
+            - `knowledge_import.xlsx` — 知识库批量导入数据（665条病程知识），在软件「知识库」窗口点「导入Excel」选择此文件
+            - `scales_import.xlsx` — 评定量表批量导入数据（58个量表），在软件「设置」页点「导入量表Excel」选择此文件
 
             ### 系统要求
             - Windows 10 / 11（64位）
