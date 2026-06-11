@@ -223,6 +223,11 @@ ORDER BY a.admission_date DESC
             cmd.Parameters.AddWithValue("@id", admissionId);
             cmd.ExecuteNonQuery();
         }
+
+        // 清理不再被任何住院记录引用的患者
+        using var orphanCmd = c.CreateCommand();
+        orphanCmd.CommandText = "DELETE FROM patients WHERE id NOT IN (SELECT DISTINCT patient_id FROM admissions)";
+        orphanCmd.ExecuteNonQuery();
     }
 
     private static Patient MapPatient(SqliteDataReader r) => new()

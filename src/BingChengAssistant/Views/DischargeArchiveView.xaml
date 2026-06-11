@@ -58,7 +58,7 @@
                 <StackPanel Grid.Column="4" Margin="0,0,24,0">
                     <TextBlock Text="住院天数" FontSize="10" Foreground="#A8D4FF"/>
                     <TextBlock FontSize="13" Foreground="White">
-                        <Run Text="{Binding Admission.HospitalDays, FallbackValue='—'}"/>
+                        <Run Text="{Binding Admission.HospitalDays, Mode=OneWay, FallbackValue='—'}"/>
                         <Run Text=" 天"/>
                     </TextBlock>
                 </StackPanel>

@@ -64,13 +64,15 @@
         <!-- 主体三列 -->
         <Grid Grid.Row="1" Margin="8,8,8,4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="240" MinWidth="180"/>
+                <ColumnDefinition Width="6"/>
+                <ColumnDefinition Width="*" MinWidth="400"/>
+                <ColumnDefinition Width="6"/>
+                <ColumnDefinition Width="260" MinWidth="180"/>
             </Grid.ColumnDefinitions>
 
             <!-- 左列：医生工作区 -->
-            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,4,0" Padding="0">
+            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -205,8 +207,11 @@
                 </Grid>
             </Border>
 
+            <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Stretch"
+                          Background="Transparent" ShowsPreview="False"/>
+
             <!-- 中列：患者详情与病程 -->
-            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="4,0,4,0" Padding="0">
+            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -324,8 +329,11 @@
                 </Grid>
             </Border>
 
+            <GridSplitter Grid.Column="3" Width="6" HorizontalAlignment="Stretch"
+                          Background="Transparent" ShowsPreview="False"/>
+
             <!-- 右列：推荐与评估记录 -->
-            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="4,0,0,0" Padding="0">
+            <Border Grid.Column="4" Style="{StaticResource Card}" Margin="0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

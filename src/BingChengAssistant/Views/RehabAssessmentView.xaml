@@ -149,6 +149,20 @@
                                      Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
                         </StackPanel>
 
+                        <!-- 通用量表（MBI/BBS/FMA/MAS等） -->
+                        <StackPanel Visibility="{Binding IsGeneric, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Border Background="#F8FAFC" CornerRadius="4" Padding="10,8" Margin="0,0,0,12"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <TextBlock Text="{Binding SelectedScale.Description}" FontSize="12"
+                                           Foreground="{StaticResource TextGrayBrush}" TextWrapping="Wrap"/>
+                            </Border>
+                            <TextBlock Text="评分结果（如：85分 或 3级）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding GenericScore}" Margin="0,0,0,12"/>
+                            <TextBlock Text="评定说明 / 分项结果" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                            <TextBox Style="{StaticResource InputBox}" Text="{Binding GenericRemark}"
+                                     Height="100" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        </StackPanel>
+
                         <Button Content="计算 / 生成解释" Style="{StaticResource PrimaryButton}"
                                 Margin="0,16,0,0" HorizontalAlignment="Left"
                                 Command="{Binding CalcCommand}"/>

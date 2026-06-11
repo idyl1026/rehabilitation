@@ -15,6 +15,7 @@ public class RehabAssessmentViewModel : BaseViewModel
     private int _mmtGrade = 3;
     private string _mmtMuscle = "";
     private string _romJoint = "", _romDirection = "", _romActive = "", _romPassive = "", _romPain = "", _romRemark = "";
+    private string _genericScore = "", _genericRemark = "";
     private string _interpretation = "", _advice = "", _resultSummary = "", _noteText = "";
 
     public Admission? Admission { get => _admission; set => SetField(ref _admission, value); }
@@ -24,12 +25,13 @@ public class RehabAssessmentViewModel : BaseViewModel
     public RehabScaleDict? SelectedScale
     {
         get => _selectedScale;
-        set { SetField(ref _selectedScale, value); OnPropertyChanged(nameof(IsVasNrs)); OnPropertyChanged(nameof(IsMmt)); OnPropertyChanged(nameof(IsRom)); }
+        set { SetField(ref _selectedScale, value); OnPropertyChanged(nameof(IsVasNrs)); OnPropertyChanged(nameof(IsMmt)); OnPropertyChanged(nameof(IsRom)); OnPropertyChanged(nameof(IsGeneric)); }
     }
 
     public bool IsVasNrs => SelectedScale?.Code is "VAS" or "NRS";
     public bool IsMmt => SelectedScale?.Code == "MMT";
     public bool IsRom => SelectedScale?.Code == "ROM";
+    public bool IsGeneric => SelectedScale != null && !IsVasNrs && !IsMmt && !IsRom;
 
     public int VasNrsScore { get => _vasNrsScore; set => SetField(ref _vasNrsScore, value); }
     public int MmtGrade { get => _mmtGrade; set => SetField(ref _mmtGrade, value); }
@@ -40,6 +42,8 @@ public class RehabAssessmentViewModel : BaseViewModel
     public string RomPassive { get => _romPassive; set => SetField(ref _romPassive, value); }
     public string RomPain { get => _romPain; set => SetField(ref _romPain, value); }
     public string RomRemark { get => _romRemark; set => SetField(ref _romRemark, value); }
+    public string GenericScore { get => _genericScore; set => SetField(ref _genericScore, value); }
+    public string GenericRemark { get => _genericRemark; set => SetField(ref _genericRemark, value); }
     public string Interpretation { get => _interpretation; set => SetField(ref _interpretation, value); }
     public string Advice { get => _advice; set => SetField(ref _advice, value); }
     public string ResultSummary { get => _resultSummary; set => SetField(ref _resultSummary, value); }
@@ -83,6 +87,14 @@ public class RehabAssessmentViewModel : BaseViewModel
             ResultSummary = $"{RomJoint} {RomDirection}：主动 {RomActive}°，被动 {RomPassive}°";
             Interpretation = $"关节活动度{(string.IsNullOrEmpty(RomPain) ? "正常" : $"伴{RomPain}")}";
             Advice = "继续关节活动度训练，注意在无痛范围内进行。";
+        }
+        else if (IsGeneric)
+        {
+            ResultSummary = string.IsNullOrWhiteSpace(GenericScore) ? "—" : GenericScore;
+            Interpretation = string.IsNullOrWhiteSpace(GenericRemark)
+                ? $"参考标准：{SelectedScale.Description}"
+                : GenericRemark;
+            Advice = "结合量表分级标准制定个体化康复计划。";
         }
 
         NoteText = RehabScoreService.BuildNoteText(SelectedScale.Name, ResultSummary, Interpretation, Advice);

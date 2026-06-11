@@ -111,9 +111,18 @@ public partial class MainWorkbenchView : System.Windows.Window
                 System.Windows.MessageBoxImage.Warning);
             if (result == System.Windows.MessageBoxResult.Yes)
             {
-                new PatientRepository().DeleteAdmission(adm.Id);
-                _vm.SelectedAdmission = null;
-                _vm.LoadAdmissions();
+                try
+                {
+                    new PatientRepository().DeleteAdmission(adm.Id);
+                    _vm.SelectedAdmission = null;
+                    _vm.LoadAdmissions();
+                    System.Windows.MessageBox.Show("删除成功。", "提示");
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show($"删除失败：{ex.Message}", "错误");
+                    LogService.Error("删除患者失败", ex);
+                }
             }
         };
     }
