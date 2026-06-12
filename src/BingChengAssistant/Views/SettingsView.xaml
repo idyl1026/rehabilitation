@@ -87,10 +87,8 @@
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
                         <TextBlock Text="关于" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock FontSize="13" Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,6">
-                            <Run Text="病程助手  "/>
-                            <Run Text="{Binding AppVersion, Mode=OneWay}" FontWeight="Bold"/>
-                        </TextBlock>
+                        <TextBlock Text="病程助手  v1.2  内网单机版" FontWeight="Bold"
+                                   FontSize="13" Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,6"/>
                         <TextBlock Text="内网单机版 · 仅用于辅助病程书写，不替代正式电子病历系统"
                                    FontSize="12" Foreground="{StaticResource TextGrayBrush}"/>
                     </StackPanel>

@@ -13,9 +13,13 @@ public partial class App : Application
         // 全局异常处理：避免无提示崩溃，显示错误信息并记录日志
         DispatcherUnhandledException += (s, ex) =>
         {
+            // 递归展开内层异常，找到真正的根因
+            var root = ex.Exception;
+            while (root.InnerException != null) root = root.InnerException;
+
             LogService.Error("未处理异常", ex.Exception);
             System.Windows.MessageBox.Show(
-                $"程序遇到意外错误：\n\n{ex.Exception.Message}\n\n错误已记录到日志，请联系开发者。",
+                $"程序遇到意外错误：\n\n{root.GetType().Name}: {root.Message}\n\n错误已记录到日志，请联系开发者。",
                 "错误", System.Windows.MessageBoxButton.OK,
                 System.Windows.MessageBoxImage.Error);
             ex.Handled = true; // 不退出程序
