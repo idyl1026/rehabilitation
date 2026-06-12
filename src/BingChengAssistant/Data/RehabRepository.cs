@@ -9,9 +9,12 @@ public class RehabRepository
     {
         using var c = DbConnectionFactory.Create();
         using var cmd = c.CreateCommand();
-        cmd.CommandText = "SELECT * FROM rehab_scale_dict WHERE is_active=1";
+        cmd.CommandText = "SELECT * FROM rehab_scale_dict WHERE is_active=1 ORDER BY id";
         var list = new List<RehabScaleDict>();
         using var r = cmd.ExecuteReader();
+        var hasContent = false;
+        for (int i = 0; i < r.FieldCount; i++)
+            if (r.GetName(i) == "content") { hasContent = true; break; }
         while (r.Read()) list.Add(new RehabScaleDict
         {
             Id = r.GetInt32(r.GetOrdinal("id")),
@@ -19,6 +22,7 @@ public class RehabRepository
             Name = r["name"].ToString()!,
             Description = r["description"].ToString()!,
             ScaleType = r["scale_type"].ToString()!,
+            Content = hasContent ? r["content"].ToString()! : "",
         });
         return list;
     }

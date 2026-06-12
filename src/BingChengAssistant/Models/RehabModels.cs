@@ -6,8 +6,10 @@ public class RehabScaleDict
     public string Code { get; set; } = "";     // VAS / NRS / ROM / MMT
     public string Name { get; set; } = "";
     public string Description { get; set; } = "";
-    public string ScaleType { get; set; } = "";  // numeric / grade / composite
+    public string ScaleType { get; set; } = "";  // numeric / grade / composite / generic
+    public string Content { get; set; } = "";    // 完整量表内容（条目与评分标准）
     public bool IsActive { get; set; } = true;
+    public bool HasContent => !string.IsNullOrWhiteSpace(Content);
 }
 
 public class RehabAssessmentRecord

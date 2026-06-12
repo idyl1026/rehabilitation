@@ -151,11 +151,25 @@
 
                         <!-- 通用量表（MBI/BBS/FMA/MAS等） -->
                         <StackPanel Visibility="{Binding IsGeneric, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Border Background="#F8FAFC" CornerRadius="4" Padding="10,8" Margin="0,0,0,12"
-                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                            <Border Background="#F8FAFC" CornerRadius="4" Padding="10,8" Margin="0,0,0,10"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                    Visibility="{Binding SelectedScale.Description, Converter={StaticResource StringToVisibilityConverter}}">
                                 <TextBlock Text="{Binding SelectedScale.Description}" FontSize="12"
                                            Foreground="{StaticResource TextGrayBrush}" TextWrapping="Wrap"/>
                             </Border>
+
+                            <!-- 完整量表内容（对照打分） -->
+                            <StackPanel Visibility="{Binding SelectedScale.HasContent, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="量表全文（对照评分）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding SelectedScale.Content, Mode=OneWay}"
+                                         IsReadOnly="True" TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Height="240" FontSize="12"
+                                         Background="#FFFDF6"
+                                         BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                         Padding="8" Margin="0,0,0,12"/>
+                            </StackPanel>
+
                             <TextBlock Text="评分结果（如：85分 或 3级）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                             <TextBox Style="{StaticResource InputBox}" Text="{Binding GenericScore}" Margin="0,0,0,12"/>
                             <TextBlock Text="评定说明 / 分项结果" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>

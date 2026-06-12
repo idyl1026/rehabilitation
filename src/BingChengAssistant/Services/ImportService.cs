@@ -66,17 +66,32 @@ public static class ImportService
                 var code = row.Cell(1).GetString().Trim();
                 var name = row.Cell(2).GetString().Trim();
                 var desc = row.Cell(3).GetString().Trim();
+                var content = row.Cell(4).GetString().Trim();   // 第4列：完整量表内容（可选）
 
                 if (string.IsNullOrEmpty(name)) { skip++; continue; }
                 if (string.IsNullOrEmpty(code))
                     code = name.Length > 16 ? name[..16] : name;   // 无代码用名称替代
 
                 using var cmd = c.CreateCommand();
-                cmd.CommandText = "INSERT OR IGNORE INTO rehab_scale_dict (code, name, description, scale_type) VALUES (@code, @name, @desc, 'generic')";
+                cmd.CommandText = "INSERT OR IGNORE INTO rehab_scale_dict (code, name, description, scale_type, content) VALUES (@code, @name, @desc, 'generic', @content)";
                 cmd.Parameters.AddWithValue("@code", code);
                 cmd.Parameters.AddWithValue("@name", name);
                 cmd.Parameters.AddWithValue("@desc", desc);
-                if (cmd.ExecuteNonQuery() > 0) ok++; else skip++;
+                cmd.Parameters.AddWithValue("@content", content);
+                if (cmd.ExecuteNonQuery() > 0) { ok++; }
+                else
+                {
+                    // 已存在：若本次带内容而库里为空，回填完整内容
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        using var upd = c.CreateCommand();
+                        upd.CommandText = "UPDATE rehab_scale_dict SET content=@content WHERE code=@code AND (content IS NULL OR content='')";
+                        upd.Parameters.AddWithValue("@content", content);
+                        upd.Parameters.AddWithValue("@code", code);
+                        if (upd.ExecuteNonQuery() > 0) { ok++; continue; }
+                    }
+                    skip++;
+                }
             }
             OperationLogService.Log("导入量表", $"成功{ok}条 跳过{skip}条");
             return (ok, skip, "");
@@ -116,9 +131,11 @@ public static class ImportService
         ws.Cell(1, 1).Value = "代码";
         ws.Cell(1, 2).Value = "名称";
         ws.Cell(1, 3).Value = "说明";
+        ws.Cell(1, 4).Value = "完整内容";
         ws.Cell(2, 1).Value = "BBS";
         ws.Cell(2, 2).Value = "Berg平衡量表";
         ws.Cell(2, 3).Value = "0-56分，<40分有跌倒风险（此行为示例，可删除）";
+        ws.Cell(2, 4).Value = "1.由坐到站：独立完成4分…（粘贴完整量表条目与评分标准，评估时可在软件中查看）";
         ws.Row(1).Style.Font.Bold = true;
         ws.Columns().AdjustToContents();
         var path = Path.Combine(dir, "量表导入模板.xlsx");

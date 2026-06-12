@@ -198,6 +198,15 @@ CREATE TABLE IF NOT EXISTS knowledge_base (
         using var cmd = c.CreateCommand();
         cmd.CommandText = sql;
         cmd.ExecuteNonQuery();
+
+        // 升级迁移：旧库 rehab_scale_dict 补 content 列（存完整量表内容）
+        try
+        {
+            using var alter = c.CreateCommand();
+            alter.CommandText = "ALTER TABLE rehab_scale_dict ADD COLUMN content TEXT DEFAULT ''";
+            alter.ExecuteNonQuery();
+        }
+        catch { /* 列已存在 */ }
     }
 
     private static void SeedDefaults(SqliteConnection c)
