@@ -26,8 +26,21 @@ jobs:
       - name: Restore NuGet packages
         run: dotnet restore src/BingChengAssistant/BingChengAssistant.csproj -r win-x64
 
+      - name: Resolve version from tag
+        id: ver
+        shell: bash
+        run: |
+          REF="${GITHUB_REF_NAME}"
+          if [[ "$REF" =~ ^v[0-9] ]]; then
+            VER="${REF#v}"
+          else
+            VER="1.2.0"
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VER"
+
       - name: Build (check for errors)
-        run: dotnet build src/BingChengAssistant/BingChengAssistant.csproj -c Release -r win-x64 --no-restore
+        run: dotnet build src/BingChengAssistant/BingChengAssistant.csproj -c Release -r win-x64 --no-restore -p:Version=${{ steps.ver.outputs.version }} -p:InformationalVersion=${{ steps.ver.outputs.version }}
 
       - name: Publish single-file exe
         run: >
@@ -37,6 +50,8 @@ jobs:
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:Version=${{ steps.ver.outputs.version }}
+          -p:InformationalVersion=${{ steps.ver.outputs.version }}
           --no-restore
           -o publish_v12
 

@@ -29,7 +29,7 @@
                 </Grid.ColumnDefinitions>
                 <!-- 左：标题 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="病程助手 v1.2" Foreground="White" FontSize="16" FontWeight="Bold"
+                    <TextBlock x:Name="AppTitleText" Text="病程助手 v1.2" Foreground="White" FontSize="16" FontWeight="Bold"
                                VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <Rectangle Width="1" Height="20" Fill="#3B5A8B" Margin="0,0,16,0"/>
                     <TextBlock Text="{Binding DoctorInfo}" Foreground="#A8C4E0" FontSize="13"
@@ -403,7 +403,7 @@
 
         <!-- 底部状态栏 -->
         <Border Grid.Row="2" Background="#E8EEF4" Padding="12,0">
-            <TextBlock Text="病程助手 v1.2  |  内网单机版  |  仅用于辅助病程书写，不替代正式电子病历系统"
+            <TextBlock x:Name="StatusBarText" Text="病程助手 v1.2  |  内网单机版  |  仅用于辅助病程书写，不替代正式电子病历系统"
                        FontSize="11" Foreground="{StaticResource TextGrayBrush}" VerticalAlignment="Center"/>
         </Border>
     </Grid>

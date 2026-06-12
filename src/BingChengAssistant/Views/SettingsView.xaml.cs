@@ -9,6 +9,8 @@ public partial class SettingsView : System.Windows.Window
     {
         DataContext = new SettingsViewModel();
         InitializeComponent();
+        AboutVersionText.Text = AppInfo.FullTitle;
+        Title = $"设置 - {AppInfo.Title}";
     }
 
     private void ImportScales_Click(object sender, System.Windows.RoutedEventArgs e)

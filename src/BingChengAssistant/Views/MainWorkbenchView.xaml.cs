@@ -17,6 +17,11 @@ public partial class MainWorkbenchView : System.Windows.Window
         InitializeComponent();
         _vm = (MainWorkbenchViewModel)DataContext;
 
+        // 显示真实构建版本号，便于确认是否最新版
+        Title = AppInfo.Title;
+        AppTitleText.Text = AppInfo.Title;
+        StatusBarText.Text = $"{AppInfo.FullTitle}  |  仅用于辅助病程书写，不替代正式电子病历系统";
+
         _vm.OpenNewPatient = () =>
         {
             var dlg = new PatientEditView();
