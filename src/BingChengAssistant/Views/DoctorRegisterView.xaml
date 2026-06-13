@@ -23,7 +23,7 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="🏥" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel>
-                    <TextBlock Text="病程助手 v1.2" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock x:Name="RegisterTitleText" Text="病程助手 v1.2" Foreground="White" FontSize="16" FontWeight="Bold"/>
                     <TextBlock Text="首次医生登记" Foreground="#A8C4E0" FontSize="12"/>
                 </StackPanel>
             </StackPanel>

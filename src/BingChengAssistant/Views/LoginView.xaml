@@ -28,7 +28,7 @@
                 </LinearGradientBrush>
             </Border.Background>
             <StackPanel VerticalAlignment="Center" Margin="40,0">
-                <TextBlock Text="病程助手 v1.2" Foreground="White" FontSize="28" FontWeight="Bold"
+                <TextBlock x:Name="LoginTitleText" Text="病程助手 v1.2" Foreground="White" FontSize="28" FontWeight="Bold"
                            FontFamily="{StaticResource DefaultFont}" Margin="0,0,0,8"/>
                 <TextBlock Text="内网单机版病程辅助写作系统" Foreground="#A8C4E0" FontSize="14"
                            FontFamily="{StaticResource DefaultFont}" Margin="0,0,0,36"/>

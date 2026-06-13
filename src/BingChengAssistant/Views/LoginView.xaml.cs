@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using BingChengAssistant.Services;
 using BingChengAssistant.ViewModels;
 
 namespace BingChengAssistant.Views;
@@ -8,6 +9,8 @@ public partial class LoginView : System.Windows.Window
     public LoginView()
     {
         InitializeComponent();
+        LoginTitleText.Text = AppInfo.Title;
+        Title = $"{AppInfo.Title} — 医生登录";
         var vm = (LoginViewModel)DataContext;
         vm.OnLoginSuccess = () =>
         {

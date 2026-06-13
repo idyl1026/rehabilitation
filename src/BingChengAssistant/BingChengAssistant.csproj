@@ -7,9 +7,9 @@
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Resources\Icons\app.ico</ApplicationIcon>
-    <Version>1.2.0</Version>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.4.7</Version>
+    <AssemblyVersion>1.4.7.0</AssemblyVersion>
+    <FileVersion>1.4.7.0</FileVersion>
     <AssemblyTitle>病程助手</AssemblyTitle>
     <Product>病程助手</Product>
     <RootNamespace>BingChengAssistant</RootNamespace>
