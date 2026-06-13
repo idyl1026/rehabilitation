@@ -99,6 +99,25 @@ public partial class ProgressNoteEditView : System.Windows.Window
         FullTextTab.IsSelected = true;
     }
 
+    // ===== 更换 / 移除 匹配的知识卡片 =====
+    private void ReplaceCard_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is KnowledgeItem item)
+        {
+            _vm.ReplaceMatchedCard(item);
+            SetEditorText(_vm.Content);
+        }
+    }
+
+    private void RemoveCard_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is KnowledgeItem item)
+        {
+            _vm.RemoveMatchedCard(item);
+            SetEditorText(_vm.Content);
+        }
+    }
+
     // ===== 量表评估 =====
     private void OpenAssessment_Click(object sender, RoutedEventArgs e)
     {

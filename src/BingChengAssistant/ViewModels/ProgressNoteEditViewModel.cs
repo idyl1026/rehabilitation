@@ -84,6 +84,7 @@ public class ProgressNoteEditViewModel : BaseViewModel
 
     public ProgressNoteEditViewModel()
     {
+        MatchedCards.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasMatchedCards));
         LoadTemplates();
         LoadCategories();
         SearchKnowledge();
@@ -120,15 +121,45 @@ public class ProgressNoteEditViewModel : BaseViewModel
     }
 
     /// <summary>一键整理：结构化字段 + 匹配知识卡片 → 标准病程全文</summary>
+    // 本次匹配的卡片（可更换/移除）与候选池
+    public ObservableCollection<KnowledgeItem> MatchedCards { get; } = new();
+    private List<KnowledgeItem> _candidatePool = new();
+    public bool HasMatchedCards => MatchedCards.Count > 0;
+
     private void Compose()
     {
         if (_admission == null) return;
-        // 已有内容中出现过的卡片不重复匹配
-        var matched = NoteComposeService.MatchKnowledge(_admission.MainDiagnosis, 5, Content);
+        // 取较大候选池，前5张作为本次选用
+        _candidatePool = NoteComposeService.MatchKnowledge(_admission.MainDiagnosis, 15);
+        MatchedCards.Clear();
+        foreach (var k in _candidatePool.Take(5)) MatchedCards.Add(k);
+        ComposeFromMatched();
+    }
+
+    /// <summary>用当前 MatchedCards 组装病程全文</summary>
+    private void ComposeFromMatched()
+    {
+        if (_admission == null) return;
         Content = NoteComposeService.Compose(
             _admission, AppContextService.CurrentDoctor, NoteType,
-            ChiefComplaint, PresentIllness, AuxExam, Assessment, matched);
-        foreach (var k in matched) new KnowledgeRepository().RecordUsage(k.Id);
+            ChiefComplaint, PresentIllness, AuxExam, Assessment, MatchedCards);
+        foreach (var k in MatchedCards) new KnowledgeRepository().RecordUsage(k.Id);
+    }
+
+    /// <summary>更换某张匹配卡片为下一个候选；无候选则移除。返回是否成功换入新卡</summary>
+    public void ReplaceMatchedCard(KnowledgeItem card)
+    {
+        int idx = MatchedCards.IndexOf(card);
+        if (idx < 0) return;
+        var next = _candidatePool.FirstOrDefault(c => !MatchedCards.Contains(c));
+        if (next != null) MatchedCards[idx] = next;
+        else MatchedCards.RemoveAt(idx);
+        ComposeFromMatched();
+    }
+
+    public void RemoveMatchedCard(KnowledgeItem card)
+    {
+        if (MatchedCards.Remove(card)) ComposeFromMatched();
     }
 
     public void LoadNote(ProgressNote note)

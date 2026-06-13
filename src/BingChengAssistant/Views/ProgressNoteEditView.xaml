@@ -145,6 +145,42 @@
                                     </Grid>
                                     <TextBox Style="{StaticResource InputBox}" Text="{Binding Assessment}"
                                              Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                                    <!-- 本次匹配的知识卡片（可更换/移除）-->
+                                    <StackPanel Margin="0,12,0,0"
+                                                Visibility="{Binding HasMatchedCards, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="本次匹配的知识卡片（不满意可更换/移除）"
+                                                   Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                        <ItemsControl ItemsSource="{Binding MatchedCards}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="#F8FAFC" CornerRadius="4" Padding="8,6" Margin="0,0,0,4"
+                                                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource TextDarkBrush}" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Content}" FontSize="10"
+                                                                           Foreground="{StaticResource TextGrayBrush}"
+                                                                           TextTrimming="CharacterEllipsis" MaxHeight="28" TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                            <Button Grid.Column="1" Content="更换" FontSize="11"
+                                                                    Style="{StaticResource SecondaryButton}" Padding="8,3" Margin="6,0,4,0"
+                                                                    VerticalAlignment="Center" Tag="{Binding}" Click="ReplaceCard_Click"/>
+                                                            <Button Grid.Column="2" Content="移除" FontSize="11"
+                                                                    Style="{StaticResource DangerButton}" Padding="8,3"
+                                                                    VerticalAlignment="Center" Tag="{Binding}" Click="RemoveCard_Click"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </StackPanel>
                             </ScrollViewer>
                             <Border Grid.Row="1" Padding="10,8" Background="#F8FAFC"
