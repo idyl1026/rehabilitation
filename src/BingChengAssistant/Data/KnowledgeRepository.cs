@@ -71,6 +71,20 @@ SELECT last_insert_rowid();
         cmd.ExecuteNonQuery();
     }
 
+    /// <summary>清空全部知识库（彻底删除，并清空引用历史），返回删除条数</summary>
+    public int ClearAll()
+    {
+        using var c = DbConnectionFactory.Create();
+        using var count = c.CreateCommand();
+        count.CommandText = "SELECT COUNT(*) FROM knowledge_base WHERE is_active=1";
+        var n = Convert.ToInt32(count.ExecuteScalar());
+
+        using var cmd = c.CreateCommand();
+        cmd.CommandText = "DELETE FROM knowledge_base; DELETE FROM knowledge_usage;";
+        cmd.ExecuteNonQuery();
+        return n;
+    }
+
     /// <summary>记录一次引用，用于"最近引用前置"</summary>
     public void RecordUsage(int knowledgeId)
     {

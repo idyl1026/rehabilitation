@@ -97,6 +97,9 @@
                                     Padding="6,6" FontSize="12" Margin="3,0,0,0"
                                     Click="ExportTemplate_Click"/>
                         </Grid>
+                        <Button Content="清空知识库" Style="{StaticResource DangerButton}"
+                                HorizontalAlignment="Stretch" Padding="6,6" FontSize="12" Margin="0,6,0,0"
+                                Click="ClearAll_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
