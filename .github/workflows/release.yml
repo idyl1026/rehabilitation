@@ -58,7 +58,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 病程助手-v1.2-win-x64
+          name: BingChengAssistant-win-x64
           path: publish_v12/BingChengAssistant.exe
           retention-days: 30
 
@@ -66,8 +66,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
+          VER="${{ steps.ver.outputs.version }}"
           mkdir -p release_assets
-          cp publish_v12/BingChengAssistant.exe release_assets/
+          cp publish_v12/BingChengAssistant.exe "release_assets/MedNote-Assistant-v${VER}.exe"
           cp "导入数据/知识库导入_病程模板.xlsx" release_assets/knowledge_import.xlsx
           cp "导入数据/量表导入_评定量表.xlsx" release_assets/scales_import.xlsx
 
@@ -83,22 +84,25 @@ jobs:
           body: |
             ## 病程助手 ${{ github.ref_name }}
 
-            ### v1.2 新特性
-            - 🏥 医生登录/注册系统
-            - 👤 患者管理（自动创建 Word 病例文档）
-            - ✏ 病程记录（4大模板，一键复制到电子病历）
-            - 🩺 康复评估（VAS/NRS/ROM/MMT）
+            康复医学科病程辅助书写工具 · 内网单机版 · 无需联网。
+
+            ### 主要功能
+            - 🏥 医生登录/注册，患者管理（自动创建 Word 病例文档）
+            - ✏️ 智能病程录入：结构化录入（主诉/现病史/辅助检查/评估）+ 一键整理成标准病程
+            - 📚 知识库：1200+ 张康复知识卡片，按病种/物理因子/药物/操作等分类，可搜索引用、引用历史前置、重复检测标红
+            - 🩺 康复评估：60+ 评定量表（VAS/NRS/MMT/ROM/MBI/BBS/FMA 等），可对照量表全文打分
             - 🏠 出院归档（汇总 Word + 科研索引 Excel）
-            - 💊 WPF 深蓝医疗主题界面
+            - 📥 知识库 / 量表 Excel 批量导入；数据备份与还原
 
             ### 使用方法
-            下载 `BingChengAssistant.exe`，双击运行，无需安装任何依赖。
+            1. 下载 `MedNote-Assistant-*.exe`，双击运行，无需安装
+            2. 打开「知识库」→「导入Excel」选择 `knowledge_import.xlsx`
+            3. 打开「设置」→「导入量表Excel」选择 `scales_import.xlsx`
+            4. 标题栏会显示当前版本号，确认与本页一致即为最新版
 
             ### 附件说明
-            - `knowledge_import.xlsx` — 知识库批量导入数据（665条病程知识），在软件「知识库」窗口点「导入Excel」选择此文件
-            - `scales_import.xlsx` — 评定量表批量导入数据（58个量表），在软件「设置」页点「导入量表Excel」选择此文件
+            - `knowledge_import.xlsx` — 知识库批量导入数据（康复知识卡片，每张 ≤200 字）
+            - `scales_import.xlsx` — 评定量表批量导入数据（含量表全文）
 
             ### 系统要求
-            - Windows 10 / 11（64位）
-            - 约 150MB 磁盘空间
-            - 不需要联网，内网可用
+            - Windows 10 / 11（64位），约 150MB 磁盘空间，无需联网

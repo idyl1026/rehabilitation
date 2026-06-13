@@ -46,10 +46,10 @@ public class ProgressNoteEditViewModel : BaseViewModel
         }
     }
 
-    // ===== 结构化录入字段（病程不含查体）=====
-    private string _chief = "", _present = "", _auxExam = "", _assessment = "";
+    // ===== 结构化录入字段（病程保留查体，不含现病史）=====
+    private string _chief = "", _exam = "", _auxExam = "", _assessment = "";
     public string ChiefComplaint { get => _chief; set => SetField(ref _chief, value); }
-    public string PresentIllness { get => _present; set => SetField(ref _present, value); }
+    public string PhysicalExam { get => _exam; set => SetField(ref _exam, value); }
     public string AuxExam { get => _auxExam; set => SetField(ref _auxExam, value); }
     public string Assessment { get => _assessment; set => SetField(ref _assessment, value); }
 
@@ -93,15 +93,15 @@ public class ProgressNoteEditViewModel : BaseViewModel
     private void OnAdmissionSet()
     {
         if (_admission == null || IsEdit) return;
-        // 新建病程：自动带入上次主诉/现病史；无既往则用首次病程模板
+        // 新建病程：自动带入上次主诉/查体(查体去重改写)；无既往则用首次病程模板
         CarryForward();
     }
 
     private void CarryForward()
     {
         if (_admission == null) return;
-        var (chief, present) = NoteComposeService.CarryForward(_admission.Id);
-        if (chief == "" && present == "")
+        var (chief, exam) = NoteComposeService.CarryForward(_admission.Id);
+        if (chief == "" && exam == "")
         {
             // 无既往病程 → 取首次病程模板渲染填入
             var first = new TemplateRepository().GetByType("首次病程").FirstOrDefault()
@@ -110,13 +110,13 @@ public class ProgressNoteEditViewModel : BaseViewModel
             {
                 var rendered = TemplateRenderService.Render(first.Content, _admission);
                 ChiefComplaint = NoteComposeService.ExtractSection(rendered, "主诉");
-                PresentIllness = NoteComposeService.ExtractSection(rendered, "现病史");
+                PhysicalExam = NoteComposeService.ExtractSection(rendered, "查体");
             }
         }
         else
         {
             ChiefComplaint = chief;
-            PresentIllness = present;
+            PhysicalExam = exam;
         }
     }
 
@@ -142,7 +142,7 @@ public class ProgressNoteEditViewModel : BaseViewModel
         if (_admission == null) return;
         Content = NoteComposeService.Compose(
             _admission, AppContextService.CurrentDoctor, NoteType,
-            ChiefComplaint, PresentIllness, AuxExam, Assessment, MatchedCards);
+            ChiefComplaint, PhysicalExam, AuxExam, Assessment, MatchedCards);
         foreach (var k in MatchedCards) new KnowledgeRepository().RecordUsage(k.Id);
     }
 
@@ -170,7 +170,7 @@ public class ProgressNoteEditViewModel : BaseViewModel
         Content = note.Content;
         // 编辑模式下把已有内容拆回结构化字段，便于二次整理
         ChiefComplaint = NoteComposeService.ExtractSection(note.Content, "主诉");
-        PresentIllness = NoteComposeService.ExtractSection(note.Content, "现病史");
+        PhysicalExam = NoteComposeService.ExtractSection(note.Content, "查体");
         AuxExam = NoteComposeService.ExtractSection(note.Content, "辅助检查");
         Assessment = NoteComposeService.ExtractSection(note.Content, "康复评估");
     }
@@ -243,7 +243,7 @@ public class ProgressNoteEditViewModel : BaseViewModel
     {
         // 未整理时若全文为空但有结构化内容，先整理
         if (string.IsNullOrWhiteSpace(Content) &&
-            !(string.IsNullOrWhiteSpace(ChiefComplaint) && string.IsNullOrWhiteSpace(PresentIllness) && string.IsNullOrWhiteSpace(AuxExam)))
+            !(string.IsNullOrWhiteSpace(ChiefComplaint) && string.IsNullOrWhiteSpace(PhysicalExam) && string.IsNullOrWhiteSpace(AuxExam)))
             Compose();
         if (string.IsNullOrWhiteSpace(Content)) return;
 

@@ -118,16 +118,17 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="主诉" Style="{StaticResource FieldLabel}" VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1" Content="↻ 带入上次主诉/现病史" FontSize="11"
+                                        <Button Grid.Column="1" Content="↻ 带入上次主诉/查体" FontSize="11"
                                                 Style="{StaticResource SecondaryButton}" Padding="6,2"
                                                 HorizontalAlignment="Right" Command="{Binding CarryForwardCommand}"/>
                                     </Grid>
                                     <TextBox Style="{StaticResource InputBox}" Text="{Binding ChiefComplaint}"
                                              Height="44" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
 
-                                    <TextBlock Text="现病史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding PresentIllness}"
-                                             Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
+                                    <TextBlock Text="查体 / 体格检查（带入上次时自动调整说法与顺序，结果不变）"
+                                               Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding PhysicalExam}"
+                                             Height="70" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
 
                                     <TextBlock Text="辅助检查（粘贴检验/影像结果）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                                     <TextBox Style="{StaticResource InputBox}" Text="{Binding AuxExam}"
