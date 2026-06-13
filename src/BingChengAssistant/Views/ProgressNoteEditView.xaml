@@ -118,7 +118,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="主诉" Style="{StaticResource FieldLabel}" VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1" Content="↻ 带入上次主诉/查体" FontSize="11"
+                                        <Button Grid.Column="1" Content="↻ 带入上次主诉/现病史" FontSize="11"
                                                 Style="{StaticResource SecondaryButton}" Padding="6,2"
                                                 HorizontalAlignment="Right" Command="{Binding CarryForwardCommand}"/>
                                     </Grid>
@@ -128,10 +128,6 @@
                                     <TextBlock Text="现病史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                                     <TextBox Style="{StaticResource InputBox}" Text="{Binding PresentIllness}"
                                              Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
-
-                                    <TextBlock Text="查体 / 体格检查" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
-                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding PhysicalExam}"
-                                             Height="70" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
 
                                     <TextBlock Text="辅助检查（粘贴检验/影像结果）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
                                     <TextBox Style="{StaticResource InputBox}" Text="{Binding AuxExam}"
@@ -155,12 +151,12 @@
                                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
                                 <Button Content="⚡ 一键整理格式并匹配知识卡片" Style="{StaticResource PrimaryButton}"
                                         HorizontalAlignment="Stretch" Padding="10,8"
-                                        Command="{Binding ComposeCommand}" Click="Compose_Click"/>
+                                        Click="Compose_Click"/>
                             </Border>
                         </Grid>
                     </TabItem>
 
-                    <!-- Tab2：病程全文 -->
+                    <!-- Tab2：病程全文（RichTextBox 支持重复文字标红）-->
                     <TabItem x:Name="FullTextTab" Header="病程全文">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -169,16 +165,20 @@
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Padding="10,6" Background="#F8FAFC"
                                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                                <TextBlock Text="{Binding WordCount}" FontSize="11"
+                                <TextBlock x:Name="WordCountText" Text="已输入 0 字" FontSize="11"
                                            Foreground="{StaticResource TextGrayBrush}" HorizontalAlignment="Right"/>
                             </Border>
-                            <TextBox Grid.Row="1"
-                                     Style="{StaticResource InputBox}"
-                                     Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
-                                     TextWrapping="Wrap" AcceptsReturn="True"
-                                     VerticalScrollBarVisibility="Auto"
-                                     FontFamily="Microsoft YaHei UI, Consolas" FontSize="13"
-                                     BorderThickness="0" Margin="2"/>
+                            <RichTextBox x:Name="FullTextBox" Grid.Row="1"
+                                         VerticalScrollBarVisibility="Auto"
+                                         FontFamily="Microsoft YaHei UI, Consolas" FontSize="13"
+                                         BorderThickness="0" Margin="2"
+                                         TextChanged="FullTextBox_TextChanged">
+                                <RichTextBox.Resources>
+                                    <Style TargetType="Paragraph">
+                                        <Setter Property="Margin" Value="0"/>
+                                    </Style>
+                                </RichTextBox.Resources>
+                            </RichTextBox>
                         </Grid>
                     </TabItem>
                 </TabControl>
@@ -200,10 +200,10 @@
                     <StackPanel Grid.Row="1" Margin="10,8,10,4">
                         <Button Content="复制到剪贴板" Style="{StaticResource SecondaryButton}"
                                 HorizontalAlignment="Stretch" Margin="0,0,0,6" Padding="10,6"
-                                Command="{Binding CopyCommand}"/>
+                                Click="Copy_Click"/>
                         <Button Content="同步到Word" Style="{StaticResource SecondaryButton}"
                                 HorizontalAlignment="Stretch" Padding="10,6"
-                                Command="{Binding SyncWordCommand}"/>
+                                Click="Sync_Click"/>
                     </StackPanel>
                     <Border Grid.Row="2" Padding="10,6,10,4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
                         <StackPanel>
@@ -256,11 +256,11 @@
                 <Button Content="取消" Style="{StaticResource SecondaryButton}"
                         Width="80" Margin="0,0,8,0" IsCancel="True"/>
                 <Button Content="复制到电子病历" Style="{StaticResource SecondaryButton}"
-                        Padding="12,8" Margin="0,0,8,0" Command="{Binding CopyCommand}"/>
+                        Padding="12,8" Margin="0,0,8,0" Click="Copy_Click"/>
                 <Button Content="同步Word" Style="{StaticResource SecondaryButton}"
-                        Padding="12,8" Margin="0,0,8,0" Command="{Binding SyncWordCommand}"/>
+                        Padding="12,8" Margin="0,0,8,0" Click="Sync_Click"/>
                 <Button Content="确认保存" Style="{StaticResource PrimaryButton}" Width="110"
-                        Command="{Binding SaveCommand}"/>
+                        Click="Save_Click"/>
             </StackPanel>
         </Border>
     </Grid>

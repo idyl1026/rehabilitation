@@ -47,30 +47,28 @@ public static class NoteComposeService
         return "";
     }
 
-    /// <summary>带入上次病程的主诉/现病史/查体（优先取最近一条有内容的）</summary>
-    public static (string chief, string present, string exam) CarryForward(int admissionId)
+    /// <summary>带入上次病程的主诉/现病史（优先取最近一条有内容的；查体不带入）</summary>
+    public static (string chief, string present) CarryForward(int admissionId)
     {
         var notes = new ProgressNoteRepository().GetByAdmission(admissionId);
-        string chief = "", present = "", exam = "";
+        string chief = "", present = "";
         foreach (var n in notes) // 已按时间倒序
         {
             if (chief == "") chief = ExtractSection(n.Content, "主诉");
             if (present == "") present = ExtractSection(n.Content, "现病史");
-            if (exam == "") exam = ExtractSection(n.Content, "查体");
-            if (chief != "" && present != "" && exam != "") break;
+            if (chief != "" && present != "") break;
         }
-        return (chief, present, exam);
+        return (chief, present);
     }
 
-    /// <summary>按主要诊断匹配相关知识卡片</summary>
-    public static List<KnowledgeItem> MatchKnowledge(string diagnosis, int limit = 5)
+    /// <summary>按主要诊断匹配相关知识卡片（excludeText 中已含的标题/内容不重复匹配）</summary>
+    public static List<KnowledgeItem> MatchKnowledge(string diagnosis, int limit = 5, string excludeText = "")
     {
         if (string.IsNullOrWhiteSpace(diagnosis)) return new();
         var repo = new KnowledgeRepository();
         var result = new List<KnowledgeItem>();
         var seen = new HashSet<int>();
 
-        // 拆分诊断为关键词（去掉数字编号与标点）
         var keywords = Regex.Split(diagnosis, @"[\s,，;；、.。\d]+")
             .Where(k => k.Length >= 2).Distinct().ToList();
 
@@ -78,7 +76,12 @@ public static class NoteComposeService
         {
             foreach (var item in repo.Search(kw))
             {
-                if (seen.Add(item.Id)) result.Add(item);
+                if (!seen.Add(item.Id)) continue;
+                // 同一份病程内已存在该卡片则跳过，保证不重复
+                if (!string.IsNullOrEmpty(excludeText) &&
+                    (excludeText.Contains(item.Title) || excludeText.Contains(item.Content)))
+                    continue;
+                result.Add(item);
                 if (result.Count >= limit) return result;
             }
         }
@@ -88,7 +91,7 @@ public static class NoteComposeService
     /// <summary>规则化组装日常病程全文</summary>
     public static string Compose(
         Admission adm, Doctor? doctor, string noteType,
-        string chief, string present, string exam, string auxExam, string assessment,
+        string chief, string present, string auxExam, string assessment,
         IEnumerable<KnowledgeItem> knowledge)
     {
         var sb = new StringBuilder();
@@ -110,7 +113,7 @@ public static class NoteComposeService
 
         Sec("主诉", chief);
         Sec("现病史", present);
-        Sec("查体", exam);
+        // 病程模板不含查体
         Sec("辅助检查", auxExam);
         if (!string.IsNullOrWhiteSpace(assessment)) Sec("康复评估", assessment);
 

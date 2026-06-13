@@ -46,11 +46,10 @@ public class ProgressNoteEditViewModel : BaseViewModel
         }
     }
 
-    // ===== 结构化录入字段 =====
-    private string _chief = "", _present = "", _exam = "", _auxExam = "", _assessment = "";
+    // ===== 结构化录入字段（病程不含查体）=====
+    private string _chief = "", _present = "", _auxExam = "", _assessment = "";
     public string ChiefComplaint { get => _chief; set => SetField(ref _chief, value); }
     public string PresentIllness { get => _present; set => SetField(ref _present, value); }
-    public string PhysicalExam { get => _exam; set => SetField(ref _exam, value); }
     public string AuxExam { get => _auxExam; set => SetField(ref _auxExam, value); }
     public string Assessment { get => _assessment; set => SetField(ref _assessment, value); }
 
@@ -93,15 +92,15 @@ public class ProgressNoteEditViewModel : BaseViewModel
     private void OnAdmissionSet()
     {
         if (_admission == null || IsEdit) return;
-        // 新建病程：自动带入上次主诉/现病史/查体；无既往则用首次病程模板
+        // 新建病程：自动带入上次主诉/现病史；无既往则用首次病程模板
         CarryForward();
     }
 
     private void CarryForward()
     {
         if (_admission == null) return;
-        var (chief, present, exam) = NoteComposeService.CarryForward(_admission.Id);
-        if (chief == "" && present == "" && exam == "")
+        var (chief, present) = NoteComposeService.CarryForward(_admission.Id);
+        if (chief == "" && present == "")
         {
             // 无既往病程 → 取首次病程模板渲染填入
             var first = new TemplateRepository().GetByType("首次病程").FirstOrDefault()
@@ -111,14 +110,12 @@ public class ProgressNoteEditViewModel : BaseViewModel
                 var rendered = TemplateRenderService.Render(first.Content, _admission);
                 ChiefComplaint = NoteComposeService.ExtractSection(rendered, "主诉");
                 PresentIllness = NoteComposeService.ExtractSection(rendered, "现病史");
-                PhysicalExam = NoteComposeService.ExtractSection(rendered, "查体");
             }
         }
         else
         {
             ChiefComplaint = chief;
             PresentIllness = present;
-            PhysicalExam = exam;
         }
     }
 
@@ -126,11 +123,11 @@ public class ProgressNoteEditViewModel : BaseViewModel
     private void Compose()
     {
         if (_admission == null) return;
-        var matched = NoteComposeService.MatchKnowledge(_admission.MainDiagnosis, 5);
+        // 已有内容中出现过的卡片不重复匹配
+        var matched = NoteComposeService.MatchKnowledge(_admission.MainDiagnosis, 5, Content);
         Content = NoteComposeService.Compose(
             _admission, AppContextService.CurrentDoctor, NoteType,
-            ChiefComplaint, PresentIllness, PhysicalExam, AuxExam, Assessment, matched);
-        // 记录被匹配知识的引用
+            ChiefComplaint, PresentIllness, AuxExam, Assessment, matched);
         foreach (var k in matched) new KnowledgeRepository().RecordUsage(k.Id);
     }
 
@@ -143,7 +140,6 @@ public class ProgressNoteEditViewModel : BaseViewModel
         // 编辑模式下把已有内容拆回结构化字段，便于二次整理
         ChiefComplaint = NoteComposeService.ExtractSection(note.Content, "主诉");
         PresentIllness = NoteComposeService.ExtractSection(note.Content, "现病史");
-        PhysicalExam = NoteComposeService.ExtractSection(note.Content, "查体");
         AuxExam = NoteComposeService.ExtractSection(note.Content, "辅助检查");
         Assessment = NoteComposeService.ExtractSection(note.Content, "康复评估");
     }
@@ -199,19 +195,24 @@ public class ProgressNoteEditViewModel : BaseViewModel
         foreach (var k in list) KnowledgeResults.Add(k);
     }
 
-    public void InsertKnowledge(KnowledgeItem item)
+    /// <summary>知识卡片插入到病程时的标准格式文本</summary>
+    public static string CardText(KnowledgeItem item) => $"\n\n【{item.Title}】\n{item.Content}";
+
+    /// <summary>记录卡片被引用（用于最近引用前置）</summary>
+    public void RecordKnowledgeUsed(int id)
     {
-        Content += $"\n\n【{item.Title}】\n{item.Content}";
-        new KnowledgeRepository().RecordUsage(item.Id);
-        // 若当前在"最近引用"分类，刷新使其前置
+        new KnowledgeRepository().RecordUsage(id);
         if (_selectedCategory == "最近引用") SearchKnowledge();
     }
+
+    /// <summary>供界面调用执行一键整理</summary>
+    public void RunCompose() => Compose();
 
     private void Save()
     {
         // 未整理时若全文为空但有结构化内容，先整理
         if (string.IsNullOrWhiteSpace(Content) &&
-            !(string.IsNullOrWhiteSpace(ChiefComplaint) && string.IsNullOrWhiteSpace(PhysicalExam)))
+            !(string.IsNullOrWhiteSpace(ChiefComplaint) && string.IsNullOrWhiteSpace(PresentIllness) && string.IsNullOrWhiteSpace(AuxExam)))
             Compose();
         if (string.IsNullOrWhiteSpace(Content)) return;
 
