@@ -71,6 +71,47 @@ SELECT last_insert_rowid();
         cmd.ExecuteNonQuery();
     }
 
+    /// <summary>记录一次引用，用于"最近引用前置"</summary>
+    public void RecordUsage(int knowledgeId)
+    {
+        using var c = DbConnectionFactory.Create();
+        using var cmd = c.CreateCommand();
+        cmd.CommandText = """
+INSERT INTO knowledge_usage (knowledge_id, use_count, last_used_at)
+VALUES (@id, 1, datetime('now','localtime'))
+ON CONFLICT(knowledge_id) DO UPDATE SET
+  use_count = use_count + 1,
+  last_used_at = datetime('now','localtime')
+""";
+        cmd.Parameters.AddWithValue("@id", knowledgeId);
+        cmd.ExecuteNonQuery();
+    }
+
+    /// <summary>最近引用的知识卡片（按最后引用时间倒序）</summary>
+    public List<KnowledgeItem> GetRecent(int limit = 20)
+    {
+        using var c = DbConnectionFactory.Create();
+        using var cmd = c.CreateCommand();
+        cmd.CommandText = """
+SELECT k.* FROM knowledge_base k
+JOIN knowledge_usage u ON u.knowledge_id = k.id
+WHERE k.is_active = 1
+ORDER BY u.last_used_at DESC
+LIMIT @lim
+""";
+        cmd.Parameters.AddWithValue("@lim", limit);
+        return ReadList(cmd);
+    }
+
+    public List<KnowledgeItem> GetByCategory(string category)
+    {
+        using var c = DbConnectionFactory.Create();
+        using var cmd = c.CreateCommand();
+        cmd.CommandText = "SELECT * FROM knowledge_base WHERE is_active=1 AND category=@cat ORDER BY id";
+        cmd.Parameters.AddWithValue("@cat", category);
+        return ReadList(cmd);
+    }
+
     private static List<KnowledgeItem> ReadList(SqliteCommand cmd)
     {
         var list = new List<KnowledgeItem>();

@@ -99,41 +99,89 @@
                 </Grid>
             </Border>
 
-            <!-- 中列：编辑器 -->
+            <!-- 中列：结构化录入 / 病程全文 -->
             <Border Grid.Column="1" Style="{StaticResource Card}" Margin="4,0,4,0" Padding="0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- 工具栏 -->
-                    <Border Grid.Row="0" Padding="12,8" Background="#F8FAFC"
-                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <TabControl x:Name="MiddleTabs" BorderThickness="0" Background="Transparent"
+                            FontFamily="{StaticResource DefaultFont}">
+                    <!-- Tab1：结构化录入 -->
+                    <TabItem Header="结构化录入">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="病程内容" FontWeight="Bold" FontSize="13"
-                                       VerticalAlignment="Center" Foreground="{StaticResource TextDarkBrush}"/>
-                            <TextBlock Grid.Column="1" FontSize="11" Foreground="{StaticResource TextGrayBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding WordCount}"/>
-                        </Grid>
-                    </Border>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="10,8">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="主诉" Style="{StaticResource FieldLabel}" VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" Content="↻ 带入上次主诉/查体" FontSize="11"
+                                                Style="{StaticResource SecondaryButton}" Padding="6,2"
+                                                HorizontalAlignment="Right" Command="{Binding CarryForwardCommand}"/>
+                                    </Grid>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding ChiefComplaint}"
+                                             Height="44" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
 
-                    <TextBox Grid.Row="1"
-                             Style="{StaticResource InputBox}"
-                             Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
-                             TextWrapping="Wrap"
-                             AcceptsReturn="True"
-                             VerticalScrollBarVisibility="Auto"
-                             FontFamily="Microsoft YaHei UI, Consolas"
-                             FontSize="13"
-                             BorderThickness="0"
-                             Margin="2"/>
-                </Grid>
+                                    <TextBlock Text="现病史" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding PresentIllness}"
+                                             Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
+
+                                    <TextBlock Text="查体 / 体格检查" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding PhysicalExam}"
+                                             Height="70" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
+
+                                    <TextBlock Text="辅助检查（粘贴检验/影像结果）" Style="{StaticResource FieldLabel}" Margin="0,0,0,4"/>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding AuxExam}"
+                                             Height="70" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8"/>
+
+                                    <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="康复评估结果" Style="{StaticResource FieldLabel}" VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" Content="＋ 量表评估" FontSize="11"
+                                                Style="{StaticResource SecondaryButton}" Padding="6,2"
+                                                HorizontalAlignment="Right" Click="OpenAssessment_Click"/>
+                                    </Grid>
+                                    <TextBox Style="{StaticResource InputBox}" Text="{Binding Assessment}"
+                                             Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                            <Border Grid.Row="1" Padding="10,8" Background="#F8FAFC"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                                <Button Content="⚡ 一键整理格式并匹配知识卡片" Style="{StaticResource PrimaryButton}"
+                                        HorizontalAlignment="Stretch" Padding="10,8"
+                                        Command="{Binding ComposeCommand}" Click="Compose_Click"/>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Tab2：病程全文 -->
+                    <TabItem x:Name="FullTextTab" Header="病程全文">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Padding="10,6" Background="#F8FAFC"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <TextBlock Text="{Binding WordCount}" FontSize="11"
+                                           Foreground="{StaticResource TextGrayBrush}" HorizontalAlignment="Right"/>
+                            </Border>
+                            <TextBox Grid.Row="1"
+                                     Style="{StaticResource InputBox}"
+                                     Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
+                                     TextWrapping="Wrap" AcceptsReturn="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Microsoft YaHei UI, Consolas" FontSize="13"
+                                     BorderThickness="0" Margin="2"/>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
             </Border>
 
             <!-- 右列：快捷操作 + 知识库搜索 -->
@@ -159,8 +207,11 @@
                     </StackPanel>
                     <Border Grid.Row="2" Padding="10,6,10,4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
                         <StackPanel>
-                            <TextBlock Text="知识库搜索" FontWeight="Bold" FontSize="12"
+                            <TextBlock Text="知识库" FontWeight="Bold" FontSize="12"
                                        Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,4"/>
+                            <ComboBox Style="{StaticResource ComboBoxStyle}" FontSize="12" Margin="0,0,0,4"
+                                      ItemsSource="{Binding Categories}"
+                                      SelectedItem="{Binding SelectedCategory}"/>
                             <TextBox Style="{StaticResource InputBox}" FontSize="12"
                                      Text="{Binding KnowledgeKeyword, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>

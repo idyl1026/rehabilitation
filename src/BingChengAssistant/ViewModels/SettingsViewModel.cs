@@ -12,7 +12,6 @@ public class SettingsViewModel : BaseViewModel
     public BackupFile? SelectedBackup { get => _selectedBackup; set => SetField(ref _selectedBackup, value); }
     public string StatusMessage { get => _statusMessage; set => SetField(ref _statusMessage, value); }
     public string DbPath => BingChengAssistant.Data.DbConnectionFactory.DbPath;
-    public string AppVersion => "v1.2  内网单机版";
 
     private RelayCommand? _backupCommand, _restoreCommand, _refreshCommand;
     public RelayCommand BackupCommand => _backupCommand ??= new(DoBackup);

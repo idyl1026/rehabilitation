@@ -194,6 +194,12 @@ CREATE TABLE IF NOT EXISTS knowledge_base (
     is_active INTEGER DEFAULT 1,
     created_at TEXT DEFAULT (datetime('now','localtime'))
 );
+
+CREATE TABLE IF NOT EXISTS knowledge_usage (
+    knowledge_id INTEGER PRIMARY KEY,
+    use_count INTEGER DEFAULT 0,
+    last_used_at TEXT DEFAULT (datetime('now','localtime'))
+);
 """;
         using var cmd = c.CreateCommand();
         cmd.CommandText = sql;
